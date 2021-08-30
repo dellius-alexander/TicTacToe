@@ -111,11 +111,11 @@ public class Minimax {
         // Captures all available cells into an array list.
         List<Point> availableCells = new ArrayList<>(board.getAvailableCells());
         if (board.hasPlayerWon(board.getComputerMark()))
-            return 1;  		// Returns value to "currentScore"
+            return 1;  		// Returns value to "currentScore" on win
         if (board.hasPlayerWon(board.getHumanMark()))
-            return -1;		// Returns value to "currentScore"
+            return -1;		// Returns value to "currentScore" on loss
         if (availableCells.isEmpty())
-            return 0;		// Returns value to "currentScore"
+            return 0;		// Returns value to "currentScore" on tie
         // Set min value to +INFINITY
         int min = Integer.MAX_VALUE;
         // Set max value to -INFINITY
