@@ -18,7 +18,7 @@ public class Board {
     // Holds the value of the current human mark (X/0).
     private char humanMark;
     // Represents the game board of char type.
-    private char[] gameBoard;
+    private char[][] gameBoard;
     // Holds the value of "row and column" reference to computer move.
     private Point computerMove;
     // Holds the value of the current round at play
@@ -40,7 +40,7 @@ public class Board {
     /**
      * The Board method is the Default constructor.
      */
-    public Board(char[] gameBoard) {
+    public Board(char[][] gameBoard) {
         this.gameBoard = gameBoard;
     }
     /**
@@ -110,10 +110,10 @@ public class Board {
         return depth;
     }
 
-    public char[] getGameBoard() {
+    public char[][] getGameBoard() {
         return gameBoard;
     }
-    public void setGameBoard(char[] gameBoard) {
+    public void setGameBoard(char[][] gameBoard) {
         this.gameBoard = gameBoard;
     }
     public char getNoPlayer() {
@@ -200,7 +200,7 @@ public class Board {
      */
     public void clearBoard() {
         for (int i = 0; i < gameBoard.length; i++) {
-            gameBoard[i] = NO_PLAYER;
+            gameBoard[i][i] = NO_PLAYER;
         }
     }
 
@@ -209,9 +209,9 @@ public class Board {
      * and resets the game board to its original state.
      * @param gameBoard  The game board
      */
-    public void clearBoard(char[] gameBoard) {
+    public void clearBoard(char[][] gameBoard) {
         for (int i = 0; i < gameBoard.length; i++) {
-            gameBoard[i] = NO_PLAYER;
+            gameBoard[i][i] = NO_PLAYER;
         }
     }
     /**
@@ -226,19 +226,40 @@ public class Board {
     /**
      * The hasPlayerWon method accepts a player mark and returns
      * a true or false value if winner exist or not.
+     * ___________________
+     * |__o__|__x__|__o__|  <=
+     * |__x__|__x__|__x__|  <==[   |ROWS|   ]
+     * |__o__|__o__|__x__|  <= 
+     * ^___[ COLUMNS ]___^
+     * 
+     * Their is a pattern that opens up from the few sequences below. 
+     * Can we find an equation to abstract each sequence. Yes...
+     * 
+     * Horizontal sequence = [0][0],[0][1],[0][2]
+     * Vertical sequence = [0][0],[1][0],[2][0] 
+     * Diagonal sequence A = [0][0],[1][1],[2][2]
+     * Diagonal sequence B = [2][0],[1][1],[0][2]
+     * Sequences:
+     *  0,1,2 : a_n = n − 1
+     *  1,2,3 : a_n = n
+     *  2,3,4 : a_n = n + 1
+     *  0,4,8 : a_n = 4n - 4
+     *  6,4,2 : a_n = 2n + 8
+     * 
      * @param player	The player mark.
      * @return			The true or false if winner exist or not.
      */
     public boolean hasPlayerWon(char player) {
         // Horizontal row check
-        return ((gameBoard[0] == gameBoard[1] && gameBoard[1] == gameBoard[2] && gameBoard[2] == player) ||
-                (gameBoard[3] == gameBoard[4] && gameBoard[4] == gameBoard[5] && gameBoard[5] == player) ||
-                (gameBoard[6] == gameBoard[7] && gameBoard[7] == gameBoard[8] && gameBoard[8] == player) ||
-                (gameBoard[0] == gameBoard[3] && gameBoard[3] == gameBoard[6] && gameBoard[6] == player) ||
-                (gameBoard[1] == gameBoard[4] && gameBoard[4] == gameBoard[7] && gameBoard[7] == player) ||
-                (gameBoard[2] == gameBoard[5] && gameBoard[5] == gameBoard[8] && gameBoard[8] == player) ||
-                (gameBoard[0] == gameBoard[4] && gameBoard[4] == gameBoard[8] && gameBoard[8] == player) ||
-                (gameBoard[2] == gameBoard[4] && gameBoard[4] == gameBoard[6] && gameBoard[6] == player));
+        return ((gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
+                (gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
+                (gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
+                (gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
+                (gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
+                (gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
+                (gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
+                (gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player));
+
     }
     /**
      * The getAvailableCells method retrieves and returns a
@@ -251,7 +272,7 @@ public class Board {
         for (int r = 1; r <= 3; r++) {
             for (int c = 1; c <= 3; c++) {
 
-                if (gameBoard[getSub(r,c)] == NO_PLAYER)
+                if (gameBoard[getSub(r,c)][getSub(r,c)] == NO_PLAYER)
                     availableCells.add(new Point(r,c));
             }
         }
@@ -267,30 +288,75 @@ public class Board {
      * @return			The true or false value if cell is occupied.
      */
     public boolean placeAMove(Point point, char player) {
-        if (gameBoard[getSub(point.getRow(), point.getCol())] != NO_PLAYER)
+        if (gameBoard[getSub(point.getRow(), point.getCol())][getSub(point.getRow(), point.getCol())] != NO_PLAYER)
             return false;
 
-        gameBoard[getSub(point.getRow(), point.getCol())] = player;
+        gameBoard[getSub(point.getRow(), point.getCol())][getSub(point.getRow(), point.getCol())] = player;
         return true;
     }
     /**
      * The displayBoard prints the game board to the display.
+     * ___________________
+     * |__o__|__x__|__o__|  <=
+     * |__x__|__x__|__x__|  <==[   |ROWS|   ]
+     * |__o__|__o__|__x__|  <= 
+     * ^___[ COLUMNS ]___^
+     * Sequences:
+     *  0,1,2 : a_n = n − 1
+     *  1,2,3 : a_n = n
+     *  2,3,4 : a_n = n + 1
+     *  0,4,8 : a_n = 4n - 4
+     *  6,4,2 : a_n = 2n + 8
      */
     public void displayBoard() {
-        System.out.println("\n");
-        for (int i = 0; i<gameBoard.length; i++)
-        {
-            System.out.print(gameBoard[i]);
-            if (((i+1) % 3) == 0)
-            {
-                System.out.println("");
-                if (i < 6)
-                    System.out.println("-+-+-");
-            }
-            else
-                System.out.print("|");
+        String top ="\n\t  _" ;
+        String ln = "\u2010\u2010";
+        String upArrow = "\u21D1";
+        String lftArrow = "\u21D0";
+        String sym = "__";
+        System.out.println(Math.pow(2,gameBoard.length));
+        for (int i = 0; i < Math.pow(gameBoard.length,2) ; i++) {
+            top += sym;
         }
+        System.out.println(top);
+        for (int i = 0; i <= gameBoard.length-1; i++) {
+            System.out.print("\t  |__");
+            for (int j = 0; j <= gameBoard.length-1; j++) {
+                
+                System.out.print(gameBoard[i][j]);
+
+                if (j >= 0 && j < gameBoard.length-1){
+                    System.out.print("__|__");                    
+                }
+                if (j == gameBoard.length-1){
+
+                    System.out.printf("__|   %s  ROW %d\n",lftArrow,(i+1));
+                }
+            }
+        }
+        System.out.println("\n\t\u21D1["+ln+"1"+ln+"]["+ln+"2"+ln+"]["+ln+"3"+ln+"]\u21D1");
+        // for (int i = 0; i<gameBoard.length; i++)
+        // {
+        //     System.out.print(gameBoard[i][i]);
+        //     if (((i+1) % 3) == 0)
+        //     {
+        //         System.out.println("");
+        //         if (i < 6)
+        //             System.out.println("-+-+-");
+        //     }
+        //     else
+        //         System.out.print("|");
+        // }
         System.out.println("\n");
+    }
+    public static void main(String[] args) {
+        char[][] gb = {{'0','1','2'},
+                       {'3','4','5'},
+                       {'6','7','8'}};
+        // char[][] gameBd = new char[3][3];
+        Board bd = new Board(gb);
+        bd.displayBoard();
+    
     }
 }
  

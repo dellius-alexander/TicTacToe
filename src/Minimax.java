@@ -137,9 +137,9 @@ public class Minimax {
                 // If AI computer wins playing index "i" as the next move in the given iteration. The index
                 // is reset and added to the pool of available cells as the next index "i" is tested in the loop.
                 if (currentScore == 1 || currentScore == 0 || currentScore == -1) {
-                    board.getGameBoard()[board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
+                    board.getGameBoard()[board.getSub(point.getRow(), point.getCol())][board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
                     if (max == 1 || currentScore == 1) {
-                        board.getGameBoard()[board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
+                        board.getGameBoard()[board.getSub(point.getRow(), point.getCol())][board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
                         break;
                     }
                 }
@@ -152,14 +152,14 @@ public class Minimax {
                 // If AI computer wins playing index "i" as the next move in the given iteration. The index
                 // is reset and added to the pool of available cells as the next index "i" is tested in the loop.
                 if (currentScore == 1 || currentScore == 0 || currentScore == -1) {
-                    board.getGameBoard()[board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
+                    board.getGameBoard()[board.getSub(point.getRow(), point.getCol())][board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
                     if (min == -1 || currentScore == -1) {
-                        board.getGameBoard()[board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
+                        board.getGameBoard()[board.getSub(point.getRow(), point.getCol())][board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
                         break;
                     }
                 }
             }
-            board.getGameBoard()[board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
+            board.getGameBoard()[board.getSub(point.getRow(), point.getCol())][board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
         }
         return player == board.getComputerMark() ? max : min;
     }

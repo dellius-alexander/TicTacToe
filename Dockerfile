@@ -1,4 +1,4 @@
-From registry.dellius.app/oracle/jdk:11 
+FROM registry.dellius.app/oracle/jdk:11 
 COPY [ ".src/", "/app"]
 WORKDIR "/app"
 RUN javac "/app/TicTacToe.java"

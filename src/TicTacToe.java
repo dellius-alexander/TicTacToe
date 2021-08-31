@@ -17,7 +17,7 @@ import java.util.Scanner;
  */
 public class TicTacToe {
     // The TicTacToe game board
-    private char[] gameBoard = {' ',' ',' ',' ',' ',' ',' ',' ',' '};
+    private char[][] gameBoard = new char[3][3];
     // A new instance of the game board
     private Board board = new Board(gameBoard);
     // Instantiate Minimax class algorithm
