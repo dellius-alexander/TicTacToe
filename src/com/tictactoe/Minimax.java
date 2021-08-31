@@ -1,3 +1,4 @@
+package com.tictactoe;
 
 /**
  * The Minimax class implements the Minimax heuristic algorithm to look

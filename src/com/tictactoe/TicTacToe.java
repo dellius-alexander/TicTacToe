@@ -1,3 +1,4 @@
+package com.tictactoe;
 
 import java.io.IOException;
 import java.util.Random;
@@ -19,7 +20,7 @@ public class TicTacToe {
     // The TicTacToe game board
     private char[][] gameBoard = new char[3][3];
     // A new instance of the game board
-    private Board board = new Board(gameBoard);
+    private Board board;
     // Instantiate Minimax class algorithm
     private Minimax mini = new Minimax(board);
     // Instantiate the PointAndScore class
@@ -42,7 +43,9 @@ public class TicTacToe {
     // Holds the value from keyboard input
     private String input;
 
-
+    public TicTacToe() {
+        board = new Board(gameBoard);
+    }
 
     /**
      * The getRow method accepts the value for the subscript
@@ -67,8 +70,10 @@ public class TicTacToe {
      * This method will assign "X" to the first player and "0"
      * to the second player. The method initiates the first move
      * of the game.
+     * @throws IOException
+     * @throws SecurityException
      */
-    public void firstMove() {
+    public void firstMove() throws SecurityException, IOException {
 
         // Holds the value of the player to move first
         int firstMover;
@@ -158,8 +163,10 @@ public class TicTacToe {
      * The humanMove method is used during user turn to interact
      * with the user during game play.  It collects the user
      * input and assigns the user move to the game board.
+     * @throws IOException
+     * @throws SecurityException
      */
-    public void humanMove() {
+    public void humanMove() throws SecurityException, IOException {
         Point point = new Point();
         boolean emptySubscript;
         int row;
@@ -277,6 +284,7 @@ public class TicTacToe {
      * @main 		The main method.
      */
     public static void main(String[] arg) throws IOException {
+        
         TicTacToe playGame = new TicTacToe();
         playGame.play();
     }
