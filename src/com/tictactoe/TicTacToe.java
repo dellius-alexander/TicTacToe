@@ -3,6 +3,7 @@ package com.tictactoe;
 import java.io.IOException;
 import java.util.Random;
 import java.util.Scanner;
+// import java.util.logging.*;
 /**
  * This is a Tic Tac Toe game. It allows the user to play
  * against the computer. Two players take turns to place their
@@ -17,14 +18,23 @@ import java.util.Scanner;
  * @since 2019-04-12
  */
 public class TicTacToe {
+    // // Setting up logging to the console and file
+    // private static Logger logger = Logger.getLogger("com.tictactoe.TicTacToe");
+    // private static String logFile = "tictactoe-"+java.time.LocalDate.now()+".%u.%g.log";
+    // //Creating consoleHandler and fileHandler
+    // private static Handler fH;    
+    // private static Level logLevel = Level.WARNING;
     // The TicTacToe game board
-    private char[][] gameBoard = new char[3][3];
+    // private char[][] gameBoard =  {{' ',' ',' '},{' ',' ',' '},{' ',' ',' '}};
+    // private char[][] gameBoard ;
+
     // A new instance of the game board
     private Board board;
+    
     // Instantiate Minimax class algorithm
-    private Minimax mini = new Minimax(board);
+    private Minimax mini;
     // Instantiate the PointAndScore class
-    PointAndScore print = new PointAndScore(board);
+    PointAndScore print;
     // A new instance of the random class.
     private Random rand = new Random();
     // A constant that represents user
@@ -44,7 +54,51 @@ public class TicTacToe {
     private String input;
 
     public TicTacToe() {
-        board = new Board(gameBoard);
+        // try {
+        //     // Add file handler
+        //     // fH = new FileHandler(logFile,true);
+        //     // Add consule handler
+        //     // fH.setFormatter(new SimpleFormatter());
+        //     // Add both handlers to the logger
+        //      // Send logger output to our FileHandler.
+        //     // logger.addHandler(fH);
+        //      // Send logger output to our consuleHandler.
+        //     // logger.addHandler(new ConsoleHandler());
+        //     // Request that every detail gets logged.
+        //     // logger.setLevel(logLevel);
+            
+        // } catch (SecurityException e) {
+        //     e.printStackTrace();
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }      
+       // Log a simple INFO message.
+       // logger.info("Constructor init...");
+        board = askBoardSize() ;
+    
+        // Instantiate Minimax class algorithm
+        mini = new Minimax(board);
+        // Instantiate the PointAndScore class
+        print = new PointAndScore(board);
+       
+    }
+
+    private Board askBoardSize(){
+        boolean valid_response = false;
+        int rsp;
+        do {
+            // Prints newline character
+            System.out.println();
+            System.out.print("What is the board size you would like to explore:  ");
+            input = keyboard.next();            
+            if (!input.matches("^[0-9]*$"))
+                valid_response = false;
+            else
+                valid_response = true;
+                rsp = Integer.valueOf(input);
+
+        } while (!valid_response);
+        return new Board(new char[rsp][rsp]);
     }
 
     /**
@@ -53,8 +107,8 @@ public class TicTacToe {
      * @param subscript	The subscript value.
      * @return		The value of the row.
      */
-    public int getRow(int subscript) {
-        return subscript / 3 + 1;
+    public int getRow(int sub) {
+        return (sub / 3) + 1;
     }
     /**
      * The getCol method accepts the value of the subscript
@@ -62,8 +116,8 @@ public class TicTacToe {
      * @param subscript 	The subscript value.
      * @return		The value of the column.
      */
-    public int getCol(int subscript) {
-        return subscript % 3 + 1;
+    public int getCol(int sub) {
+        return (sub % 3) + 1;
     }
     /**
      * The firstMove method will randomly decide who goes first.
@@ -85,7 +139,7 @@ public class TicTacToe {
         whosTurn = whosTurn % 2;
         // Holds the value of player to move first
         firstMover = whosTurn;
-        // Assign characters "X" to first player and "0" to second player
+        // Assign characters 'X' to first player and '0' to second player
         if (firstMover == USERS_TURN) {
             computersMark = 'O';
             humansMark = 'X';
@@ -112,9 +166,10 @@ public class TicTacToe {
             round += 1;
             board.setRound(round);
             do{
-                sub = rand.nextInt(8);
+                // generate a random subscript for the first computer move
+                sub = rand.nextInt(board.getGameBoard().length-1);
                 test = sub % 2;
-            } while (test == 1 || sub == 4);
+            } while (test == 1 || sub == (board.getGameBoard().length));
             Point point = new Point(getRow(sub), getCol(sub));
             board.placeAMove(point, computersMark);
             System.out.println();
@@ -176,18 +231,19 @@ public class TicTacToe {
             do {
                 System.out.print("YOUR TURN, enter " + humansMark +
                         " at \n \t     row(1-3):  ");
-                input = keyboard.next();
+                input = keyboard.next().trim();
             } while (!input.matches(inputValidator));
             row = Integer.parseInt(input);
 
             do {
                 System.out.print("Now enter column(1-3): ");
-                input = keyboard.next();
+                input = keyboard.next().trim();
             } while (!input.matches(inputValidator));
             col = Integer.parseInt(input);
             // Finds subscript value from row and column
             point.getSub(row, col);
-            point = new Point(point.getRow(),point.getCol());
+            // point = new Point(point.getRow(),point.getCol());
+            // logger.info("LINE: ["+getLineNumber()+"] | Point: "+point.toString());
             emptySubscript = (board.placeAMove(point, humansMark));
             if (!emptySubscript) {
                 System.out.print("\nInvalid selection, ROW " + row +
@@ -271,21 +327,27 @@ public class TicTacToe {
                     computerMove();
                     turn = USERS_TURN;
                 }
-                if (board.isGameOver())
-                    break;
             }
+            // if (board.isGameOver())
+            //         break;
             // Determines winner or draw if game is over
             winnerExist();
         }while (playAgain());
+    }
+    /**
+     * Get the current line number of executing thread
+     * @return the integer value line number of executing thread
+     */
+    public static int getLineNumber() {
+        return Thread.currentThread().getStackTrace()[2].getLineNumber();
     }
     /**
      * The main method starts/initiates the Tic Tac Toe game.
      * @throws IOException
      * @main 		The main method.
      */
-    public static void main(String[] arg) throws IOException {
-        
-        TicTacToe playGame = new TicTacToe();
+    public static void main(String[] arg) throws IOException {        
+        TicTacToe playGame = new TicTacToe();       
         playGame.play();
     }
 }

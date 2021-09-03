@@ -2,3 +2,8 @@
 out
 *.iml
 *.log
+.notes
+*.zip
+*.xml
+Exercise*.java
+.vscode/

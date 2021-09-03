@@ -11,13 +11,42 @@ package com.tictactoe;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+// import java.util.logging.*;
 
 public class Minimax {
-
+    // // Setting up logging to the console and file
+    // private static Logger logger = Logger.getLogger("com.tictactoe.TicTacToe");
+    // private static String logFile = "tictactoe-"+java.time.LocalDate.now()+".%u.%g.log";
+    // //Creating consoleHandler and fileHandler
+    // private static Handler fH;    
+    // private static Level logLevel = Level.WARNING;
     private Board board;
     private PointAndScore printScore = new PointAndScore();
 
     public Minimax(Board board) {
+        // try {
+        //     // Add file handler
+        //     // fH = new FileHandler(logFile,true);
+        //     // Add consule handler
+        //     // fH.setFormatter(new SimpleFormatter());
+        //     // Add both handlers to the logger
+        //      // Send logger output to our FileHandler.
+        //     // logger.addHandler(fH);
+        //      // Send logger output to our consuleHandler.
+        //     // logger.addHandler(new ConsoleHandler());
+        //     // Request that every detail gets logged.
+        //     // logger.setLevel(logLevel);
+            
+        // } catch (SecurityException e) {
+        //     e.printStackTrace();
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }      
+       // Log a simple INFO message.
+       // logger.info("Constructor init...");
+        this.board = board;
+    }
+    public void setGameBoard(Board board){
         this.board = board;
     }
     /**
@@ -31,10 +60,11 @@ public class Minimax {
      * @param depth		The current iteration of game play
      * @throws IOException
      */
-    public void setBestMove(Point point, int score, int avilCells, int i, int max, int depth) throws IOException {
-        // If current iteration depth ends in a draw or win for computer return
-        // return point at "0" depth.
-        if (depth == 0)
+    public void setBestMove(Point point, int score, int avilCells, int i, int max, int depth) {
+        try{
+            // If current iteration depth ends in a draw or win for computer return
+            // return point at "0" depth.
+            if (depth == 0)
             if (score > 0 && max > 0) {
                 board.setComputerMove(point);
                 printScore.printBestScore(point, score, avilCells, i, max, depth, board.getRound());
@@ -45,6 +75,10 @@ public class Minimax {
                 printScore.printBestScore(point, score, avilCells, i, max, depth, board.getRound());
                 return;
             }
+        } catch (IOException e) {
+            // logger.warning("Unable to set computer move...\n"+e.getMessage());
+        }
+        
         return;
     }
     /**
@@ -58,6 +92,7 @@ public class Minimax {
     public int aiComputerMove(Point point, int depth, int i, List<Point> availableCells) throws IOException {
 
         board.placeAMove(point, board.getComputerMark());
+        ;
         if (board.hasPlayerWon(board.getComputerMark())) {
             board.setComputerScore(1);		// Returns value to "currentScore"
             // Captures statistical data of possible decision tree return best moves
@@ -127,20 +162,23 @@ public class Minimax {
             board.setDepth(availableCells.size());
             // The cell/point value to be tested for all possible outcomes
             Point point = availableCells.get(i);
+            // logger.info("LINE: ["+getLineNumber()+"] | Point: "+point.toString());
             // Plays a move for computer AI
             if (player == board.getComputerMark()) {
                 int currentScore = aiComputerMove(point, availableCells.size(), i, availableCells);
                 // Returns the maximum value for the best move of all iterations
                 max = Math.max(currentScore, max);
                 printScore.setMax(max);
+                // logger.info("LINE: ["+getLineNumber()+"] | Point: "+point.toString()+" | Row: "+point.getRow()+" | Column: "+point.getCol()+" | Max: "+max+" | Min: "+min);
                 setBestMove(point, currentScore, availableCells.size(), i, max, depth);
                 printScore.terminalWinner(board.getRound(),point, currentScore, availableCells.size(), max, depth, i);
                 // If AI computer wins playing index "i" as the next move in the given iteration. The index
-                // is reset and added to the pool of available cells as the next index "i" is tested in the loop.
+                // is reset and added to the pool of available cells as the next index "i" is tested recursively.
+                // logger.info("LINE: ["+getLineNumber()+"] | Point: "+point.toString()+" | Row: "+point.getRow()+" | Column: "+point.getCol());
                 if (currentScore == 1 || currentScore == 0 || currentScore == -1) {
-                    board.getGameBoard()[board.getSub(point.getRow(), point.getCol())][board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
+                    board.getGameBoard()[point.getRow()][point.getCol()] = board.getNoPlayer();
                     if (max == 1 || currentScore == 1) {
-                        board.getGameBoard()[board.getSub(point.getRow(), point.getCol())][board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
+                        board.getGameBoard()[point.getRow()][point.getCol()] = board.getNoPlayer();
                         break;
                     }
                 }
@@ -151,17 +189,24 @@ public class Minimax {
                 min = Math.min(currentScore, min);
                 printScore.terminalWinner(board.getRound(),point, currentScore, availableCells.size(), min, depth, i);
                 // If AI computer wins playing index "i" as the next move in the given iteration. The index
-                // is reset and added to the pool of available cells as the next index "i" is tested in the loop.
+                // is reset and added to the pool of available cells as the next index "i" is tested recursively.
                 if (currentScore == 1 || currentScore == 0 || currentScore == -1) {
-                    board.getGameBoard()[board.getSub(point.getRow(), point.getCol())][board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
+                    board.getGameBoard()[point.getRow()][point.getCol()] = board.getNoPlayer();
                     if (min == -1 || currentScore == -1) {
-                        board.getGameBoard()[board.getSub(point.getRow(), point.getCol())][board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
+                        board.getGameBoard()[point.getRow()][point.getCol()] = board.getNoPlayer();
                         break;
                     }
                 }
             }
-            board.getGameBoard()[board.getSub(point.getRow(), point.getCol())][board.getSub(point.getRow(), point.getCol())] = board.getNoPlayer();
+            board.getGameBoard()[point.getRow()][point.getCol()] = board.getNoPlayer();
         }
         return player == board.getComputerMark() ? max : min;
+    }
+    /**
+     * Get the current line number of executing thread
+     * @return the integer value line number of executing thread
+     */
+    public static int getLineNumber() {
+        return Thread.currentThread().getStackTrace()[2].getLineNumber();
     }
 }

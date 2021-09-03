@@ -1,8 +1,9 @@
 package com.tictactoe;
 
-import java.util.logging.*;
-import java.io.IOException;
+// import java.util.logging.*;
+// import java.io.IOException;
 import java.util.ArrayList;
+// import java.util.Arrays;
 import java.util.List;
 /**
  * The Board class represents the game board in a Tic Tac Toe game.  
@@ -14,15 +15,14 @@ import java.util.List;
  * @since 2019-04-12
  */
 public class Board {
-    private static Logger logger = Logger.getLogger("com.tictactoe.Board");
-    private static String logFile = "tictactoe.%u.%g.log";
-    private static Handler fh;
+    // // Setting up logging to the console and file
+    // private static Logger logger = Logger.getLogger("com.tictactoe.Board");
+    // private static String logFile = "tictactoe-"+java.time.LocalDate.now()+".%u.%g.log";
+    // //Creating consoleHandler and fileHandler
+    // // private static ConsoleHandler cH;
+    // private static Handler fH;    
+    // private static Level logLevel = Level.WARNING;
     
-    private static Level logLevel = Level.ALL;
-    private static SimpleFormatter formatter;
-    // FileHandler.pattern=<home directory>/logs/oaam.log;
-
- 
     // Constant to represent a blank cell on the game board.
     private static final char NO_PLAYER = ' ';
     // Holds the value of the current computer mark (X/0).
@@ -46,40 +46,51 @@ public class Board {
      * The Board method is the Default constructor.
      */
     public Board() {        
-        try {
-            // Add file handler
-            fh = new FileHandler(logFile,true);
-            formatter = new SimpleFormatter();  
-            fh.setFormatter(formatter);
-            // Request that every detail gets logged.
-            logger.setLevel(logLevel);
-            // Send logger output to our FileHandler.
-            logger.addHandler(fh);
+        // try {
+        //     // Add file handler
+        //     // // fH = new FileHandler(logFile,true);
+        //     // Add consule handler
+        //     // // fH.setFormatter(new SimpleFormatter());
+        //     // Add both handlers to the logger
+        //      // Send logger output to our FileHandler.
+        //     // logger.addHandler(fH);
+        //      // Send logger output to our consuleHandler.
+        //     // logger.addHandler(new ConsoleHandler());
+        //     // Request that every detail gets logged.
+        //     // logger.setLevel(logLevel);
             
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }          
+        // } catch (SecurityException e) {
+        //     e.printStackTrace();
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }          
+        // Log a simple INFO message.
+        // logger.info("LINE: ["+getLineNumber()+"] | Constructor init...");
+        // this.gameBoard = setupGameBrd(this.gameBoard);
     }
     public Board(char[][] gameBoard){
-        try{
-            // Add file handler
-            fh = new FileHandler(logFile,true);
-            formatter = new SimpleFormatter();  
-            fh.setFormatter(formatter);
-            // Request that every detail gets logged.
-            logger.setLevel(logLevel);
-            // Send logger output to our FileHandler.
-            logger.addHandler(fh);
+        // try{
+        //     // Add file handler
+        //     // fH = new FileHandler(logFile,true);
+        //     // Add consule handler
+        //     // fH.setFormatter(new SimpleFormatter());
+        //     // Add both handlers to the logger
+        //      // Send logger output to our FileHandler.
+        //     // logger.addHandler(fH);
+        //      // Send logger output to our consuleHandler.
+        //     // logger.addHandler(new ConsoleHandler());
+        //     // Request that every detail gets logged.
+        //     // logger.setLevel(logLevel);
             
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }    
+        // } catch (SecurityException e) {
+        //     e.printStackTrace();
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }    
+        // Log a simple INFO message.
+        // logger.info("LINE: ["+getLineNumber()+"] | Constructor init...");
         // assign game board
-        this.gameBoard = gameBoard;
+        this.gameBoard = setupGameBrd(gameBoard);
     }
     /**
      * The getRound method returns the value of the
@@ -193,7 +204,7 @@ public class Board {
      * @return		The index value of the cell on the board.
      */
     public int getSub(int r, int c)	{
-        return (r - 1) * 3 + c - 1;
+        return (r - 1) * 3 + (c - 1);
     }
     /**
      * The getRow method accepts the value for the subscript
@@ -202,7 +213,7 @@ public class Board {
      * @return		The value of the row.
      */
     public int getRow(int sub) {
-        return sub / 3 + 1;
+        return (sub / 3) + 1;
     }
     /**
      * The getCol method accepts the value of the subscript
@@ -211,7 +222,7 @@ public class Board {
      * @return		The value of the column.
      */
     public int getCol(int sub) {
-        return sub % 3 + 1;
+        return (sub % 3) + 1;
     }
     /**
      * The getComputerMove returns the row and column
@@ -229,8 +240,17 @@ public class Board {
      * computerMove.
      * @param compMove	The object representing row and column
      */
-    public void setComputerMove(Point compMove) {
-        this.computerMove = compMove;
+    public boolean setComputerMove(Point compMove) {
+        if (compMove != null) {
+            this.computerMove = compMove;
+        } else
+			try {
+				throw new Exception(" ");
+			} catch (Exception e) {
+				// logger.warning("LINE: ["+getLineNumber()+"] | Unable to place a move...\n"+e.getMessage());
+			}
+            
+        return true; 
     }
     /**
      * The clearBoard method wipes the game board of all moves
@@ -238,7 +258,9 @@ public class Board {
      */
     public void clearBoard() {
         for (int i = 0; i < gameBoard.length; i++) {
-            gameBoard[i][i] = NO_PLAYER;
+            for (int j = 0; j < gameBoard.length; j++){
+                this.gameBoard[i][j] = NO_PLAYER;
+            }  
         }
     }
 
@@ -249,7 +271,9 @@ public class Board {
      */
     public void clearBoard(char[][] gameBoard) {
         for (int i = 0; i < gameBoard.length; i++) {
-            gameBoard[i][i] = NO_PLAYER;
+            for (int j = 0; j < gameBoard.length; j++){
+                this.gameBoard[i][j] = NO_PLAYER;
+            }  
         }
     }
     /**
@@ -259,16 +283,19 @@ public class Board {
      */
     public boolean isGameOver() {
         
-        return hasPlayerWon(computerMark) || hasPlayerWon(humanMark)
+        boolean over = hasPlayerWon(computerMark) || hasPlayerWon(humanMark)
                 || getAvailableCells().isEmpty();
+                // logger.info("LINE: ["+getLineNumber()+"] | Game is Over: "+over);
+                return over;
     }
     /**
      * The hasPlayerWon method accepts a player mark and returns
      * a true or false value if winner exist or not.
+     *    0     1     2
      * ___________________
-     * |__o__|__x__|__o__|  <=
-     * |__x__|__x__|__x__|  <==[   |ROWS|   ]
-     * |__o__|__o__|__x__|  <= 
+     * |__o__|__x__|__o__|  <=  0  
+     * |__x__|__x__|__x__|  <=  1 [   |ROWS|   ]
+     * |__o__|__o__|__x__|  <=  2
      * ^___[ COLUMNS ]___^
      * 
      * Their is a pattern that opens up from the few sequences below. 
@@ -290,33 +317,33 @@ public class Board {
      */
     public boolean hasPlayerWon(char player) {
         // Horizontal/Vertical/Diagonal row check
-        return ((gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
-                (gameBoard[1][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[1][2] && gameBoard[1][2] == player) ||
-                (gameBoard[2][0] == gameBoard[2][1] && gameBoard[2][1] == gameBoard[2][2] && gameBoard[2][2] == player) ||
-                (gameBoard[0][0] == gameBoard[1][0] && gameBoard[1][0] == gameBoard[2][0] && gameBoard[2][0] == player) ||
-                (gameBoard[0][1] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][1] && gameBoard[2][1] == player) ||
-                (gameBoard[0][2] == gameBoard[1][2] && gameBoard[1][2] == gameBoard[2][2] && gameBoard[2][2] == player) ||
-                (gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
-                (gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player));
-
+        boolean hasWon = ((gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
+                        (gameBoard[1][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[1][2] && gameBoard[1][2] == player) ||
+                        (gameBoard[2][0] == gameBoard[2][1] && gameBoard[2][1] == gameBoard[2][2] && gameBoard[2][2] == player) ||
+                        (gameBoard[0][0] == gameBoard[1][0] && gameBoard[1][0] == gameBoard[2][0] && gameBoard[2][0] == player) ||
+                        (gameBoard[0][1] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][1] && gameBoard[2][1] == player) ||
+                        (gameBoard[0][2] == gameBoard[1][2] && gameBoard[1][2] == gameBoard[2][2] && gameBoard[2][2] == player) ||
+                        (gameBoard[0][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][2] && gameBoard[2][2] == player) ||
+                        (gameBoard[0][2] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][0] && gameBoard[2][0] == player));
+        // logger.info("LINE: ["+getLineNumber()+"] | Has Player Won: "+hasWon);
+        return hasWon;
     }
     /**
      * The getAvailableCells method retrieves and returns a
      * list available empty cells on the game board.
      * @return	The list of available cells
-     * @throws IOException
-     * @throws SecurityException
      */
     public List<Point> getAvailableCells(){
         List<Point> availableCells = new ArrayList<>();
 
-        for (int r = 1; r <= 3; r++) {
-            for (int c = 1; c <= 3; c++) {
-
-                if (gameBoard[getSub(r,c)][getSub(r,c)] == NO_PLAYER)
+        for (int r = 1; r <= gameBoard.length; r++) {
+            for (int c = 1; c <= gameBoard.length; c++) {
+                // logger.info("LINE: ["+getLineNumber()+"] | row: "+r+" | Column: "+c+ " | getSub: "+getSub(r, c));
+                if (gameBoard[r-1][c-1] == NO_PLAYER)
                     availableCells.add(new Point(r,c));
             }
         }
+        // logger.info("LINE: ["+getLineNumber()+"] | Available Cells: "+Arrays.deepToString(availableCells.toArray()));
         return availableCells;
     }
     /**
@@ -331,12 +358,13 @@ public class Board {
     public boolean placeAMove(Point point, char player) {
         // System.out.println("Row: "+point.getRow());
         // System.out.println("Col: "+point.getCol());
-
-        if (gameBoard[point.getRow()][point.getCol()] != NO_PLAYER)
+        // logger.info("LINE: ["+getLineNumber()+"] | Point: "+point.toString()+" | Row: "+point.getRow()+" | Column: "+point.getCol());
+        if (gameBoard[point.getRow()][point.getCol()] != NO_PLAYER){
+            // logger.info("LINE: ["+getLineNumber()+"] | Unable to Place A Move at => Row: "+point.getRow()+" | Column:"+point.getCol());
             return false;
-
-
-        gameBoard[point.getRow()][point.getCol()] = player;
+        }
+        gameBoard[point.getRow()][point.getCol()] = player;    
+        // logger.info("LINE: ["+getLineNumber()+"] | Placed A Move at => Row: "+point.getRow()+" | Column:"+point.getCol());    
         return true;
     }
     /**
@@ -344,92 +372,161 @@ public class Board {
      * 
      */
     public void displayBoard() {
-        String top ="_" ;
-        String upArrow = "\u21D1";
-        String lftArrow = "\u21D0";
-        String sym = "__";
-        // System.out.println(Math.pow(2,gameBoard.length));
-        for (int i = 0; i < Math.pow(gameBoard.length,2) ; i++) {
-            top += sym;
-        }
-        System.out.println("\n\t  "+top);
-        for (int i = 0; i <= gameBoard.length-1; i++) {
-            System.out.print("\t  |__");
-            for (int j = 0; j <= gameBoard.length-1; j++) {
-                
+        System.out.println("\n");
+        for (int i = 0; i<gameBoard.length; i++)
+        {
+            for (int j = 0; j < gameBoard.length; j++)
+            {      
                 System.out.print(gameBoard[i][j]);
-
-                if (j >= 0 && j < gameBoard.length-1){
-                    System.out.print("__|__");                    
+                if (j == gameBoard.length-1) {
+                    System.out.print("\t<= ROW "+(i+1));
                 }
-                if (j == gameBoard.length-1){
-
-                    System.out.printf("__|   %s  ROW %d\n",lftArrow,(i+1));
+                // // logger.info("Row "+ j +" I think: "+(j+1) % gameBoard.length);
+                if (((j+1) % gameBoard.length) == 0)
+                {
+                    if (j < (gameBoard.length)){
+                        System.out.println(" ");
+                    }
+                    if (i < gameBoard.length-1){
+                        for (int j2 = 0; j2 < Math.ceil(gameBoard.length-1); j2++) {
+                            System.out.print("-+");
+                        }
+                    }
+                    if (i < (gameBoard.length-1)){
+                        System.out.println("-");
+                    }
+                }
+                else
+                {
+                    System.out.print("|");
                 }
             }
-        }
-        System.out.println("\n\t "+upArrow+""+top+""+upArrow+"");
-        System.out.println("\t    1...N  COLUMNS  \n\t(where N is last column)");
+        }    
         System.out.println("\n");
+        for (int i = 0; i < gameBoard.length; i++) {
+            System.out.print(""+(i+1)+" ");
+        }
+        System.out.println("\n\n---COLUMN");
+        System.out.println("\n\n\n");
+        // logger.info("LINE: ["+getLineNumber()+"] | Printed Game Board...");
     }
-        /**
+    /**
      * The displayBoard prints the game board to the display.
      * 
      */
     public void displayBoard(char[][] gameBoard) {
-        String top ="_" ;
-        String upArrow = "\u21D1";
-        String lftArrow = "\u21D0";
-        String sym = "__";
-        // System.out.println(Math.pow(2,gameBoard.length));
-        for (int i = 0; i < Math.pow(gameBoard.length,2) ; i++) {
-            top += sym;
-        }
-        System.out.println("\n\n");
-        for (int i = 0; i <= gameBoard.length-1; i++) {
-            System.out.print("\t  |__");
-            for (int j = 0; j <= gameBoard.length-1; j++) {
-                
+        System.out.println("\n");
+        for (int i = 0; i<gameBoard.length; i++)
+        {
+            for (int j = 0; j < gameBoard.length; j++)
+            {      
                 System.out.print(gameBoard[i][j]);
-
-                if (j >= 0 && j < gameBoard.length-1){
-                    System.out.print("__|__");                    
+                if (j == gameBoard.length-1) {
+                    System.out.print("\t<= ROW "+(i+1));
                 }
-                if (j == gameBoard.length-1){
-
-                    System.out.printf("__|   %s  ROW %d\n",lftArrow,(i+1));
+                // // logger.info("Row "+ j +" I think: "+(j+1) % gameBoard.length);
+                if (((j+1) % gameBoard.length) == 0)
+                {
+                    if (j < (gameBoard.length)){
+                        System.out.println(" ");
+                    }
+                    if (i < gameBoard.length-1){
+                        for (int j2 = 0; j2 < Math.ceil(gameBoard.length-1); j2++) {
+                            System.out.print("-+");
+                        }
+                    }
+                    if (i < (gameBoard.length-1)){
+                        System.out.println("-");
+                    }
+                }
+                else
+                {
+                    System.out.print("|");
                 }
             }
-        }
-        // System.out.println("\n\t "+upArrow+""+top+""+upArrow+"");
-        // System.out.println("\t    1...N  COLUMNS  \n\t(where N is last column)");
+        }    
         System.out.println("\n");
+        for (int i = 0; i < gameBoard.length; i++) {
+            System.out.print(""+(i+1)+" ");
+        }
+        System.out.println("\n\n---COLUMN");
+        System.out.println("\n\n\n");
+        // logger.info("LINE: ["+getLineNumber()+"] | Printed Game Board...");
     }
+    /**
+     * Set up the game board with initial whitespace character.
+     * @param gb
+     * @return
+     */
     public char[][] setupGameBrd(char[][] gb){
+        // int label = 0;
         for (int i = 0; i < gb.length; i++) {
             for (int j = 0; j < gb.length; j++) {
-                int s = (i * 3 + j)+1;
                 // System.out.println("Sub:" +s);
-                gb[i][j] = Integer.toString(s).charAt(0);
-                // System.out.println("Sub:" +gb[i][j]);
+                gb[i][j] = ' ';
+                // logger.info("Sub: |" +gb[i][j]+ "|");
             }
         }
-
+        // logger.info("LINE: ["+getLineNumber()+"] | Finished setting up game...");
         return gb;
     }
-    ///////////////////////////////////// [ MAIN ] //////////////////////////////////////
-    public static void main(String[] args) {  
-        char[][] gb = new char[5][5]; 
-        // char[][] gb = {{' ',' ',' '},
-        //                {' ',' ',' '},
-        //                {' ',' ',' '}};
-        
-        Board bd = new Board();
-        gb = bd.setupGameBrd(gb);
-        bd.displayBoard(gb);
-        // System.out.println(gb[0]);
-        logger.info("Test log....");
-
+    /**
+     * Get the current line number of executing thread
+     * @return the integer value line number of executing thread
+     */
+    public static int getLineNumber() {
+        return Thread.currentThread().getStackTrace()[2].getLineNumber();
     }
+
+    // TODO: have to finish making the hasPlayerWon scalable
+    // Horizontal function: (L*n - L) where L is the length of the array
+    // public boolean hasPlayerWon(char player, char[][] gBoard)
+    // {
+    //     boolean isWinner;
+    //     List<char[]> val = new ArrayList<char[]>();
+    //     int valid_Counter= 0; // counts how many time a match is found
+    //     int numberOfColumns = gBoard.length ;
+    //     // get all the rows for checking
+    //     for (int i = 0; i < numberOfColumns; i++)
+    //         val.add(gBoard[i]);
+    //     // now check each set of rows
+    //     for (int i = 1; i < numberOfColumns; i++) 
+    //     {   
+    //         int setNumber = ((numberOfColumns * i) - numberOfColumns);
+    //         System.out.pr
+    //         // get the first value of each set
+    //         char firstValue = val.get(setNumber)[i-1];
+    //         for (int j = 0; j < numberOfColumns; j++)
+    //             if (firstValue == val.get(setNumber)[j])
+    //                 valid_Counter++;
+    //     }
+    //     if (valid_Counter == numberOfColumns)
+    //         return true;
+    //     else
+    //         isWinner = false;
+
+        
+
+
+    //     return isWinner;
+    // }
+    // ///////////////////////////////////// [ MAIN ] //////////////////////////////////////
+    // public static void main(String[] args) {  
+    //     // char[][] gb = new char[3][3]; 
+    //     char[][] gb = {{'X','X','X'},
+    //                    {' ','X',' '},
+    //                    {' ',' ','X'}};
+        
+    //     Board bd = new Board();
+    //     // System.out.println("bd.getSub: "+bd.getSub(3, 3));
+    //     // System.out.println("bd.getSub: "+bd.getCol(8));
+    //     // System.out.println("bd.getSub: "+bd.getRow(8));
+    //     // gb = bd.setupGameBrd(gb);
+    //     bd.displayBoard(gb);
+    //     System.out.println(bd.hasPlayerWon('X',gb));
+        
+
+    // }
+/////////////////////   END OF CLASS Board  /////////////////////////
 }
  

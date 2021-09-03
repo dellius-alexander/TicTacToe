@@ -4,6 +4,7 @@ package com.tictactoe;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+// import java.util.logging.*;
 /**
  * The PointAndScore class stores and represents the points (row and column)
  * of a single cell and score to be played on the game board during game play.
@@ -14,7 +15,12 @@ import java.io.PrintWriter;
  */
 
 public class PointAndScore {
-
+    // // Setting up logging to the console and file
+    // private static Logger logger = Logger.getLogger("com.tictactoe.PointAndScore");
+    // private static String logFile = "tictactoe-"+java.time.LocalDate.now()+".%u.%g.log";
+    // //Creating consoleHandler and fileHandler
+    // private static Handler fH;    
+    // private static Level logLevel = Level.WARNING;
     // The score represents the value assigned to player move
     // after a winner is determined during AI simulation
     private int score;
@@ -35,13 +41,53 @@ public class PointAndScore {
      * The default constructor
      */
     public PointAndScore() {
-        // Default constructor
+        // // Default constructor
+        // try {
+        //     // Add file handler
+        //     // fH = new FileHandler(logFile,true);
+        //     // Add consule handler
+        //     // fH.setFormatter(new SimpleFormatter());
+        //     // Add both handlers to the logger
+        //      // Send logger output to our FileHandler.
+        //     // logger.addHandler(fH);
+        //      // Send logger output to our consuleHandler.
+        //     // logger.addHandler(new ConsoleHandler());
+        //     // Request that every detail gets logged.
+        //     // logger.setLevel(logLevel);
+            
+        // } catch (SecurityException e) {
+        //     e.printStackTrace();
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }          
+       // Log a simple INFO message.
+       // logger.info("Constructor init...");
     }
     /**
      * This constructor accepts the game board
      */
     public PointAndScore(Board board) {
-        this.board = board;
+        // try {
+        //     // Add file handler
+        //     // fH = new FileHandler(logFile,true);
+        //     // Add consule handler
+        //     // fH.setFormatter(new SimpleFormatter());
+        //     // Add both handlers to the logger
+        //      // Send logger output to our FileHandler.
+        //     // logger.addHandler(fH);
+        //      // Send logger output to our consuleHandler.
+        //     // logger.addHandler(new ConsoleHandler());
+        //     // Request that every detail gets logged.
+        //     // logger.setLevel(logLevel);
+            
+        // } catch (SecurityException e) {
+        //     e.printStackTrace();
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // } 
+       // Log a simple INFO message.
+       // logger.info("Constructor init...");
+        this.board = board;         
     }
     /**
      * The setMax method tracks the max values returned during iteration
@@ -204,6 +250,12 @@ public class PointAndScore {
                 board.getComputerMove() + "  **************");
         outputFile.close();
     }
-
+    /**
+     * Get the current line number of executing thread
+     * @return the integer value line number of executing thread
+     */
+    public static int getLineNumber() {
+        return Thread.currentThread().getStackTrace()[2].getLineNumber();
+    }
 
 }
