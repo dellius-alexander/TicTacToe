@@ -1,26 +1,20 @@
-package com.tictactoe;
-
-
+package com.hyfi.tictactoe;
+// Logging depencencies
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+// Class dependencies
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 // import java.util.logging.*;
 /**
- * The PointAndScore class stores and represents the points (row and column)
- * of a single cell and score to be played on the game board during game play.
- * This class writes the game statistical data to a text file for analysis.
-
+ * The PointAndScore class stores and represents the points (row and column) of a single cell and score to be played on the game board during game play. This class writes the game statistical data to a text file for analysis.
  * @version 2.2
  * @since 2019-04-12
  */
 
 public class PointAndScore {
-    // // Setting up logging to the console and file
-    // private static Logger logger = Logger.getLogger("com.tictactoe.PointAndScore");
-    // private static String logFile = "tictactoe-"+java.time.LocalDate.now()+".%u.%g.log";
-    // //Creating consoleHandler and fileHandler
-    // private static Handler fH;    
-    // private static Level logLevel = Level.WARNING;
+    private static final Logger logger = LoggerFactory.getLogger(PointAndScore.class);
     // The score represents the value assigned to player move
     // after a winner is determined during AI simulation
     private int score;
@@ -34,65 +28,27 @@ public class PointAndScore {
      * The GameData.txt file will be created the root folder
      * and game data will be written to this file.
      */
-    public static final String DATA_FILE = "GameData.txt";
+    public static final String DATA_FILE = "data/GameData.txt";
 
 
     /**
      * The default constructor
      */
     public PointAndScore() {
-        // // Default constructor
-        // try {
-        //     // Add file handler
-        //     // fH = new FileHandler(logFile,true);
-        //     // Add consule handler
-        //     // fH.setFormatter(new SimpleFormatter());
-        //     // Add both handlers to the logger
-        //      // Send logger output to our FileHandler.
-        //     // logger.addHandler(fH);
-        //      // Send logger output to our consuleHandler.
-        //     // logger.addHandler(new ConsoleHandler());
-        //     // Request that every detail gets logged.
-        //     // logger.setLevel(logLevel);
-            
-        // } catch (SecurityException e) {
-        //     e.printStackTrace();
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        // }          
-       // Log a simple INFO message.
-       // logger.info("Constructor init...");
+       logger.debug("Constructor init...");
     }
     /**
      * This constructor accepts the game board
+     * @param board the game board
      */
     public PointAndScore(Board board) {
-        // try {
-        //     // Add file handler
-        //     // fH = new FileHandler(logFile,true);
-        //     // Add consule handler
-        //     // fH.setFormatter(new SimpleFormatter());
-        //     // Add both handlers to the logger
-        //      // Send logger output to our FileHandler.
-        //     // logger.addHandler(fH);
-        //      // Send logger output to our consuleHandler.
-        //     // logger.addHandler(new ConsoleHandler());
-        //     // Request that every detail gets logged.
-        //     // logger.setLevel(logLevel);
-            
-        // } catch (SecurityException e) {
-        //     e.printStackTrace();
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        // } 
-       // Log a simple INFO message.
-       // logger.info("Constructor init...");
+
         this.board = board;         
     }
     /**
      * The setMax method tracks the max values returned during iteration
      * of minimax algorithm.
-     * @param max
+     * @param max the max value
      */
     public void setMax(int max) {
         this.max = max;
@@ -108,7 +64,7 @@ public class PointAndScore {
     /**
      * The setPoint method assigns the point value to
      * the field point
-     * @param point		The field point value
+     * @param point The field point value
      */
     public void setPoint(Point point) {
         this.point = point;
@@ -152,17 +108,30 @@ public class PointAndScore {
     public int getScore() {
         return score;
     }
-
+    /**
+     * Sets the value of available cells left in the list to be played or tested
+     * @param depth the available cells left to be played
+     */
     public void setDepth(int depth) {
         this.depth = depth;
     }
-
+    /**
+     * Gets the value of available cells left in the list to be played or tested
+     * @return the available cells left to be played
+     */
     public int getDepth() {
         return depth;
     }
     /**
-     * The terminalWinner method prints the winner of the current iteration.
-     * @throws IOException
+     * Tbe last move played that resulted in a win
+     * @param round  the current round of game play
+     * @param point the Point played
+     * @param score the value representing a win/loose/draw
+     * @param aCells the available cells left to be played
+     * @param value the maximum value returned compared to other wins
+     * @param depth the available cells left to be played
+     * @param i the current iteration of game play
+     * @throws IOException throw IOException on file access
      */
     public void terminalWinner(int round, Point point, int score, int aCells, int value, int depth, int i) throws IOException  {
         if (score == 1) {
@@ -191,7 +160,17 @@ public class PointAndScore {
         }
 
     }
-
+    /**
+     * The best moves played at game play that resulted in a win
+     * @param point the Point played
+     * @param score the value representing a win/loose/draw
+     * @param aCells the available cells left to be played
+     * @param i the current iteration of game play
+     * @param max the best value compared to other game outcomes
+     * @param depth the available cells left to be played
+     * @param round  the current round of game play
+     * @throws IOException IOException throw IOException on file access
+     */
     public void printBestScore(Point point, int score, int aCells, int i, int max, int depth, int round) throws IOException {
         this.point = point;
         this.score = score;
@@ -210,7 +189,13 @@ public class PointAndScore {
     /**
      * The printComputerMove method prints statistical data for simulated move
      * played during game iteration depth
-     * @throws IOException
+     * @param round  the current round of game play
+     * @param score the value representing a win/loose/draw
+     * @param point the Point played
+     * @param depth the available cells left to be played
+     * @param iteration the current iteration of game play
+     * @param max the best value compared to other game outcomes
+     * @throws IOException IOException throw IOException on file access
      */
     public void captureComputerMove(int round, int score, Point point, int depth, int iteration, int max ) throws IOException {
         FileWriter fwriter = new FileWriter(DATA_FILE, true);
@@ -222,7 +207,13 @@ public class PointAndScore {
     /**
      * The printHumanMove method prints statistical data for simulated move
      * played during game iteration depth
-     * @throws IOException
+     * @param round  the current round of game play
+     * @param score the value representing a win/loose/draw
+     * @param point the Point played
+     * @param depth the available cells left to be played
+     * @param iteration the current iteration of game play
+     * @param min the worst value compared to other game outcomes
+     * @throws IOException IOException throw IOException on file access
      */
     public void captureHumanMove(int round, int score, Point point, int depth, int iteration, int min) throws IOException {
         FileWriter fwriter = new FileWriter(DATA_FILE, true);
@@ -239,7 +230,7 @@ public class PointAndScore {
      * method paired with PointAndScore class helps to evaluate
      * game performance.
      * @see PointAndScore
-     * @throws IOException
+     * @throws IOException IOException throw IOException on file access
      */
     public void printResults() throws IOException {
 
@@ -250,12 +241,12 @@ public class PointAndScore {
                 board.getComputerMove() + "  **************");
         outputFile.close();
     }
-    /**
-     * Get the current line number of executing thread
-     * @return the integer value line number of executing thread
-     */
-    public static int getLineNumber() {
-        return Thread.currentThread().getStackTrace()[2].getLineNumber();
-    }
+    // /**
+    //  * Get the current line number of executing thread
+    //  * @return the integer value line number of executing thread
+    //  */
+    // public static int getLineNumber() {
+    //     return Thread.currentThread().getStackTrace()[2].getLineNumber();
+    // }
 
 }

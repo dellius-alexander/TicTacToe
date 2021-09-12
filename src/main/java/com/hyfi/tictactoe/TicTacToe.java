@@ -1,36 +1,24 @@
-package com.tictactoe;
-
+package com.hyfi.tictactoe;
+// Imports for logging
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+// Class imports
 import java.io.IOException;
 import java.util.Random;
 import java.util.Scanner;
-// import java.util.logging.*;
 /**
- * This is a Tic Tac Toe game. It allows the user to play
- * against the computer. Two players take turns to place their
- * mark on a "3X3" grid of spaces with an X or 0. The player
- * to move first will be randomly chosen. The first player
- * will be assigned "X" and "0" will be assigned to the second
- * player. The player who succeeds first in placing three
- * marks in horizontal, vertical, or diagonal row wins the game.
- * The game board is designed from a 1 dimensional array.
-
+ * This is a Tic Tac Toe game. It allows the user to play against the computer. Two players take turns to place their mark on a "3X3" grid of spaces with an X or 0. The player to move first will be randomly chosen. The first player will be assigned "X" and "0" will be assigned to the second player. The player who succeeds first in placing three marks in horizontal, vertical, or diagonal row wins the game. The game board is designed from a 1 dimensional array. 
  * @version 2.2
  * @since 2019-04-12
  */
 public class TicTacToe {
-    // // Setting up logging to the console and file
-    // private static Logger logger = Logger.getLogger("com.tictactoe.TicTacToe");
-    // private static String logFile = "tictactoe-"+java.time.LocalDate.now()+".%u.%g.log";
-    // //Creating consoleHandler and fileHandler
-    // private static Handler fH;    
-    // private static Level logLevel = Level.WARNING;
+    private static final Logger logger = LoggerFactory.getLogger(TicTacToe.class);    
     // The TicTacToe game board
     // private char[][] gameBoard =  {{' ',' ',' '},{' ',' ',' '},{' ',' ',' '}};
     // private char[][] gameBoard ;
 
     // A new instance of the game board
     private Board board;
-    
     // Instantiate Minimax class algorithm
     private Minimax mini;
     // Instantiate the PointAndScore class
@@ -51,44 +39,38 @@ public class TicTacToe {
     private  int turn;
     // Holds the value of current round
     private  int round;
+    // Get user input
     private Scanner keyboard = new Scanner(System.in);
     // Holds the value from keyboard input
     private String input;
-
+    // Input validator
+    private String inputValidator;
+    /**
+     * Constructor of main class
+     */
     public TicTacToe() {
-        // try {
-        //     // Add file handler
-        //     // fH = new FileHandler(logFile,true);
-        //     // Add consule handler
-        //     // fH.setFormatter(new SimpleFormatter());
-        //     // Add both handlers to the logger
-        //      // Send logger output to our FileHandler.
-        //     // logger.addHandler(fH);
-        //      // Send logger output to our consuleHandler.
-        //     // logger.addHandler(new ConsoleHandler());
-        //     // Request that every detail gets logged.
-        //     // logger.setLevel(logLevel);
-            
-        // } catch (SecurityException e) {
-        //     e.printStackTrace();
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        // }      
-       // Log a simple INFO message.
-       // logger.info("Constructor init...");
-        board = askBoardSize() ;
-       // assign the boardSize
-       boardSize =  board.getGameBoard().length;
+        // Log a simple INFO message.
+        logger.debug("Constructor init...");
+        // System.exit(0);
+        board = this.askBoardSize() ;
+        // assign the boardSize
+        boardSize =  board.getGameBoard().length;
         // Instantiate Minimax class algorithm
         mini = new Minimax(board);
         // Instantiate the PointAndScore class
         print = new PointAndScore(board);
-       
+        //
+        this.inputValidator = "^[0-"+board.getGameBoard().length+"]{"+input.length()+"}$";
+        logger.debug("Input Validator: {} | Board Length: {}", inputValidator, board.getGameBoard().length);;
+               
     }
-
+    /**
+     * Prompt user for game board size of N length
+     * @return the contructed game board of N length
+     */
     private Board askBoardSize(){
         boolean valid_response = false;
-        int rsp;
+        Integer rsp;
         do {
             // Prints newline character
             System.out.println();
@@ -97,17 +79,20 @@ public class TicTacToe {
             if (!input.matches("^[0-9]*$"))
                 valid_response = false;
             else
-                valid_response = true;
-                rsp = Integer.valueOf(input);
-
+            {
+                valid_response = true;                
+            }
+            
+            rsp = Integer.valueOf(input);
         } while (!valid_response);
+        System.out.println();
         return new Board(new char[rsp][rsp]);
     }
 
     /**
      * The getRow method accepts the value for the subscript
      * and returns the value of the row.
-     * @param subscript	The subscript value.
+     * @param sub	The subscript value.
      * @return		The value of the row.
      */
     public int getRow(int sub) {
@@ -116,7 +101,7 @@ public class TicTacToe {
     /**
      * The getCol method accepts the value of the subscript
      * and returns the value of the column.
-     * @param subscript 	The subscript value.
+     * @param sub 	The subscript value.
      * @return		The value of the column.
      */
     public int getCol(int sub) {
@@ -127,8 +112,8 @@ public class TicTacToe {
      * This method will assign "X" to the first player and "0"
      * to the second player. The method initiates the first move
      * of the game.
-     * @throws IOException
-     * @throws SecurityException
+     * @throws IOException  throws IOException
+     * @throws SecurityException throws security exception
      */
     public void firstMove() throws SecurityException, IOException {
 
@@ -175,6 +160,8 @@ public class TicTacToe {
             } while (test == 1 || sub == (board.getGameBoard().length));
             Point point = new Point(getRow(sub), getCol(sub));
             point.setBoardSize(this.boardSize);
+            // add the next move to list of last moves played
+            board.setLastMove(point);
             board.placeAMove(point, computersMark);
             System.out.println();
             System.out.printf("I marked %s at row (1-%d): %d",computersMark, this.boardSize, point.getRow());
@@ -221,8 +208,8 @@ public class TicTacToe {
      * The humanMove method is used during user turn to interact
      * with the user during game play.  It collects the user
      * input and assigns the user move to the game board.
-     * @throws IOException
-     * @throws SecurityException
+     * @throws IOException  throws IOException
+     * @throws SecurityException throws security exception
      */
     public void humanMove() throws SecurityException, IOException {
         Point point = new Point();
@@ -230,23 +217,22 @@ public class TicTacToe {
         boolean emptySubscript;
         int row;
         int col;
-        String inputValidator = "^[0-9]*$";
         do {
             do {
                 System.out.printf("YOUR TURN, enter %s at row(1-%d):  ",humansMark,this.boardSize);
                 input = keyboard.next().trim();
-            } while (!input.matches(inputValidator));
+            } while (!input.matches(inputValidator) && Integer.parseInt(input) < board.getGameBoard().length);
             row = Integer.parseInt(input);
 
             do {
                 System.out.printf("Now enter column number(1-%d):  ",this.boardSize);
                 input = keyboard.next().trim();
-            } while (!input.matches(inputValidator));
+            } while (!input.matches(inputValidator) && Integer.parseInt(input) < board.getGameBoard().length);
             col = Integer.parseInt(input);
             // Finds subscript value from row and column
             point.getSub(row, col);
             // point = new Point(point.getRow(),point.getCol());
-            // logger.info("LINE: ["+getLineNumber()+"] | Point: "+point.toString());
+            logger.debug("Point: "+point.toString());
             emptySubscript = (board.placeAMove(point, humansMark));
             if (!emptySubscript) {
                 System.out.print("\nInvalid selection, ROW " + row +
@@ -258,13 +244,15 @@ public class TicTacToe {
                 System.out.println();
             }
         }while (!emptySubscript);
+        // add the next move to list of last moves played
+        board.setLastMove(point);
         board.placeAMove(point, humansMark);
         board.displayBoard();
     }
     /**
      * The computerMove method initiates the minimax algorithm
      * and plays the best possible move for win or draw.
-     * @throws IOException
+     * @throws IOException throws IOException
      */
     public void computerMove() throws IOException {
         mini.minimax(0, computersMark);
@@ -274,7 +262,9 @@ public class TicTacToe {
         System.out.printf("MY TURN, I marked %s at row (1-%d): %d",computersMark, this.boardSize, board.getComputerMove().getRow());
         // Prints newline character
         System.out.println();
-        System.out.printf("\t    column(1-%d): %d",this.boardSize, board.getComputerMove().getCol());
+        System.out.printf("\t\t    column(1-%d): %d",this.boardSize, board.getComputerMove().getCol());
+        // add the next move to list of last moves played
+        board.setLastMove(board.getComputerMove());
         board.placeAMove(board.getComputerMove(), computersMark);
         System.out.println();
         System.out.println();
@@ -299,7 +289,7 @@ public class TicTacToe {
      * a game loop to iterate through the game until the game
      * reaches a terminal state.  At which point the game will
      * prompt the user to start a new game or quit.
-     * @throws IOException
+     * @throws IOException throws IOException
      */
     public void play() throws IOException {
         do {
@@ -335,20 +325,26 @@ public class TicTacToe {
             winnerExist();
         }while (playAgain());
     }
-    /**
-     * Get the current line number of executing thread
-     * @return the integer value line number of executing thread
-     */
-    public static int getLineNumber() {
-        return Thread.currentThread().getStackTrace()[2].getLineNumber();
-    }
-    /**
-     * The main method starts/initiates the Tic Tac Toe game.
-     * @throws IOException
-     * @main 		The main method.
-     */
-    public static void main(String[] arg) throws IOException {        
-        TicTacToe playGame = new TicTacToe();       
-        playGame.play();
-    }
+    ///////////////////////////////////////////////////////////////////////////
+    // public static void main(String[] arg) throws IOException 
+    // {   
+    //     ///////////////////////////////////////////////////////////////////////
+    //     // TicTacToe t = new TicTacToe();
+	// 	// t.play();
+    //     ///////////////////////////////////////////////////////////////////////
+    //         // TicTacToe t = new TicTacToe();            
+    //         // char[][] gBoard = new char[3][3]; 
+    //         char[][] gBoard = { {'X',' ',' ','X'},
+    //                             {'X','X','X',' '},
+    //                             {' ',' ','X',' '},
+    //                             {'X',' ',' ','X'}};
+    //         Board bd = new Board(gBoard);
+    //         // // System.out.println("bd.getSub: "+bd.getSub(3, 3));
+    //         // // System.out.println("bd.getSub: "+bd.getCol(8));
+    //         // // System.out.println("bd.getSub: "+bd.getRow(8));
+    //         bd.displayBoard(gBoard);
+    //         System.out.println(bd.hasPlayerWon('X'));
+    //     logger.debug("End of Game TicTacToe............");
+    //     // System.out.println("End of test class...");
+    // }
 }

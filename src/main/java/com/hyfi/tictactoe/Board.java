@@ -1,29 +1,20 @@
-package com.tictactoe;
-
-// import java.util.logging.*;
-// import java.io.IOException;
+package com.hyfi.tictactoe;
+// Imports
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
-// import java.util.Arrays;
+import java.util.Arrays;
 import java.util.List;
-import java.util.function.BooleanSupplier;
+import java.util.function.*;
+
 
 /**
- * The Board class represents the game board in a Tic Tac Toe game.  
- * This class also contains a AI method using the MiniMax algorithm, 
- * so the computer can determine the best possible move to secure a 
- * winning state or draw during game play.
-
+ * The Board class represents the game board in a Tic Tac Toe game. This class also contains a AI method using the MiniMax algorithm, so the computer can determine the best possible move to secure a winning state or draw during game play.
  * @version 2.2
  * @since 2019-04-12
  */
 public class Board {
-    // // Setting up logging to the console and file
-    // private static Logger logger = Logger.getLogger("com.tictactoe.Board");
-    // private static String logFile = "tictactoe-"+java.time.LocalDate.now()+".%u.%g.log";
-    // //Creating consoleHandler and fileHandler
-    // // private static ConsoleHandler cH;
-    // private static Handler fH;    
-    // private static Level logLevel = Level.WARNING;
+    private static final Logger logger = LoggerFactory.getLogger(Board.class);
     
     // Constant to represent a blank cell on the game board.
     private static final char NO_PLAYER = ' ';
@@ -45,57 +36,40 @@ public class Board {
     private int depth;
     // holds the size of the board
     private int boardSize;
+    // holds the last move played
+    private List<Point> lastMove = new ArrayList<Point>();
 
     /**
      * The Board method is the Default constructor.
      */
-    public Board() {        
-        // try {
-        //     // Add file handler
-        //     // // fH = new FileHandler(logFile,true);
-        //     // Add consule handler
-        //     // // fH.setFormatter(new SimpleFormatter());
-        //     // Add both handlers to the logger
-        //      // Send logger output to our FileHandler.
-        //     // logger.addHandler(fH);
-        //      // Send logger output to our consuleHandler.
-        //     // logger.addHandler(new ConsoleHandler());
-        //     // Request that every detail gets logged.
-        //     // logger.setLevel(logLevel);
-            
-        // } catch (SecurityException e) {
-        //     e.printStackTrace();
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        // }          
-        // Log a simple INFO message.
-        // logger.info("LINE: ["+getLineNumber()+"] | Constructor init...");
-        // this.gameBoard = setupGameBrd(this.gameBoard);
+    public Board() {
+        logger.debug("Default constructor...");
     }
+    /**
+     * Constructor accepts game board
+     * @param gameBoard the game board passed to a new instance of Board
+     */
     public Board(char[][] gameBoard){
-        // try{
-        //     // Add file handler
-        //     // fH = new FileHandler(logFile,true);
-        //     // Add consule handler
-        //     // fH.setFormatter(new SimpleFormatter());
-        //     // Add both handlers to the logger
-        //      // Send logger output to our FileHandler.
-        //     // logger.addHandler(fH);
-        //      // Send logger output to our consuleHandler.
-        //     // logger.addHandler(new ConsoleHandler());
-        //     // Request that every detail gets logged.
-        //     // logger.setLevel(logLevel);
-            
-        // } catch (SecurityException e) {
-        //     e.printStackTrace();
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        // }    
-        // Log a simple INFO message.
-        // logger.info("LINE: ["+getLineNumber()+"] | Constructor init...");
-        // assign game board
+
         this.gameBoard = setupGameBrd(gameBoard);
         this.boardSize = this.gameBoard.length;
+        logger.debug("Parameterized constructor...");
+    }
+    /**
+     * Adds the last move played to a list of previous moves
+     * @param point the point played last
+     */
+    public void setLastMove(Point point)
+    {
+        this.lastMove.add(point);
+    }
+    /**
+     * Gets a list of privious played moves
+     * @return the list of last moves
+     */
+    public List<Point> getLastMove()
+    {
+        return this.lastMove;
     }
     /**
      * Sets the board size
@@ -105,12 +79,14 @@ public class Board {
     }
     /**
      * Sets the board size
+     * @param size the board size
      */
     public void setBoardSize(int size){
         this.boardSize = size;
     }
     /**
      * Sets the board size
+     * @param gameBoard the game board
      */
     public void setBoardSize(char[][] gameBoard){
         this.boardSize = gameBoard.length;
@@ -143,7 +119,7 @@ public class Board {
     /**
      * The setScore method assigns the score evaluated
      * at the end of each iteration simulation
-     * @param score
+     * @param score the value returnd from a win/lose/draw
      */
     public void setComputerScore(int score) {
         this.computerScore = score;
@@ -160,14 +136,14 @@ public class Board {
     /**
      * The setScore method assigns the score evaluated
      * at the end of each iteration simulation
-     * @param score
+     * @param score the value representing win/loose/draw of game play
      */
     public void sethumanScore(int score) {
         this.humanScore = score;
     }
     /**
      * The setDepth method assigns the value of current
-     * depth of game play to field currentDepth
+     * lengthe of the available cells remaining to be played
      * @param depth	The current depth at play
      */
     public void setDepth(int depth) {
@@ -176,18 +152,29 @@ public class Board {
     /**
      * The getDepth method returns the value of the
      * current depth being explored or at play
-     * @return
+     * @return the current length of the available cells to be played
      */
     public int getDepth() {
         return depth;
     }
-
+    /**
+     * Gets the game board
+     * @return the game board
+     */
     public char[][] getGameBoard() {
         return gameBoard;
     }
+    /**
+     * Sets the game board
+     * @param gameBoard the game board
+     */
     public void setGameBoard(char[][] gameBoard) {
         this.gameBoard = gameBoard;
     }
+    /**
+     * Gets the the NULL player token
+     * @return the NULL player token
+     */
     public char getNoPlayer() {
         return NO_PLAYER;
     }
@@ -256,24 +243,25 @@ public class Board {
     public Point getComputerMove() {
         return computerMove;
     }
-
     /**
      * The setComputerMove method accepts a point object
      * of row and column and assigns the value to
      * computerMove.
      * @param compMove	The object representing row and column
+     * @return false if compMove NULL, true if not NULL
      */
     public boolean setComputerMove(Point compMove) {
         if (compMove != null) {
             this.computerMove = compMove;
+            return true;
         } else
 			try {
-				throw new Exception(" ");
+				throw new Exception("Computer move object NULL...");
 			} catch (Exception e) {
-				// logger.warning("LINE: ["+getLineNumber()+"] | Unable to place a move...\n"+e.getMessage());
+				logger.error("Unable to place a move...\n"+e.getMessage());
 			}
             
-        return true; 
+        return false; 
     }
     /**
      * The clearBoard method wipes the game board of all moves
@@ -308,7 +296,7 @@ public class Board {
         
         boolean over = hasPlayerWon(computerMark) || hasPlayerWon(humanMark)
                 || getAvailableCells().isEmpty();
-                // logger.info("LINE: ["+getLineNumber()+"] | Game is Over: "+over);
+                logger.debug("Game is Over: "+over);
                 return over;
     }
     // /**
@@ -348,7 +336,7 @@ public class Board {
     //                     (gameBoard[0][2] == gameBoard[1][2] && gameBoard[1][2] == gameBoard[2][2] && gameBoard[2][2] == player) ||
     //                     (gameBoard[0][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][2] && gameBoard[2][2] == player) ||
     //                     (gameBoard[0][2] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][0] && gameBoard[2][0] == player));
-    //     // logger.info("LINE: ["+getLineNumber()+"] | Has Player Won: "+hasWon);
+    //     // logger.debug("Has Player Won: "+hasWon);
     //     return hasWon;
     // }
     /**
@@ -361,12 +349,12 @@ public class Board {
 
         for (int r = 1; r <= gameBoard.length; r++) {
             for (int c = 1; c <= gameBoard.length; c++) {
-                // logger.info("LINE: ["+getLineNumber()+"] | row: "+r+" | Column: "+c+ " | getSub: "+getSub(r, c));
+                // logger.debug("row: "+r+" | Column: "+c+ " | getSub: "+getSub(r, c));
                 if (gameBoard[r-1][c-1] == NO_PLAYER)
                     availableCells.add(new Point(r,c));
             }
         }
-        // logger.info("LINE: ["+getLineNumber()+"] | Available Cells: "+Arrays.deepToString(availableCells.toArray()));
+        logger.debug("Available Cells: "+Arrays.deepToString(availableCells.toArray()));
         return availableCells;
     }
     /**
@@ -381,13 +369,13 @@ public class Board {
     public boolean placeAMove(Point point, char player) {
         // System.out.println("Row: "+point.getRow());
         // System.out.println("Col: "+point.getCol());
-        // logger.info("LINE: ["+getLineNumber()+"] | Point: "+point.toString()+" | Row: "+point.getRow()+" | Column: "+point.getCol());
+        // logger.debug("Point: "+point.toString()+" | Row: "+point.getRow()+" | Column: "+point.getCol());
         if (gameBoard[point.getRow()][point.getCol()] != NO_PLAYER){
-            // logger.info("LINE: ["+getLineNumber()+"] | Unable to Place A Move at => Row: "+point.getRow()+" | Column:"+point.getCol());
+            logger.debug("Unable to Place A Move at => Row: "+point.getRow()+" | Column:"+point.getCol());
             return false;
         }
         gameBoard[point.getRow()][point.getCol()] = player;    
-        // logger.info("LINE: ["+getLineNumber()+"] | Placed A Move at => Row: "+point.getRow()+" | Column:"+point.getCol());    
+        logger.debug("Placed A Move at => Row: "+point.getRow()+" | Column:"+point.getCol());    
         return true;
     }
     /**
@@ -402,52 +390,9 @@ public class Board {
             {      
                 System.out.print(gameBoard[i][j]);
                 if (j == gameBoard.length-1) {
-                    System.out.print("\t<= ROW "+(i+1));
+                    System.out.print("\t\t<= ROW "+(i+1));
                 }
-                // // logger.info("Row "+ j +" I think: "+(j+1) % gameBoard.length);
-                if (((j+1) % gameBoard.length) == 0)
-                {
-                    if (j < (gameBoard.length)){
-                        System.out.println(" ");
-                    }
-                    if (i < gameBoard.length-1){
-                        for (int j2 = 0; j2 < Math.ceil(gameBoard.length-1); j2++) {
-                            System.out.print("-+");
-                        }
-                    }
-                    if (i < (gameBoard.length-1)){
-                        System.out.println("-");
-                    }
-                }
-                else
-                {
-                    System.out.print("|");
-                }
-            }
-        }    
-        System.out.println("\n");
-        for (int i = 0; i < gameBoard.length; i++) {
-            System.out.print(""+(i+1)+" ");
-        }
-        System.out.println("\n\n\u21C8-⇑-⇑-⇑-COLUMNS");
-        System.out.println("\n\n\n");
-        // logger.info("LINE: ["+getLineNumber()+"] | Printed Game Board...");
-    }
-    /**
-     * The displayBoard prints the game board to the display.
-     * 
-     */
-    public void displayBoard(char[][] gameBoard) {
-        System.out.println("\n");
-        for (int i = 0; i<gameBoard.length; i++)
-        {
-            for (int j = 0; j < gameBoard.length; j++)
-            {      
-                System.out.print(gameBoard[i][j]);
-                if (j == gameBoard.length-1) {
-                    System.out.print("\t<= ROW "+(i+1));
-                }
-                // // logger.info("Row "+ j +" I think: "+(j+1) % gameBoard.length);
+                // // logger.debug("Row "+ j +" I think: "+(j+1) % gameBoard.length);
                 if (((j+1) % gameBoard.length) == 0)
                 {
                     if (j < (gameBoard.length)){
@@ -474,12 +419,55 @@ public class Board {
         }
         System.out.println("\n\n⇑-⇑-⇑-COLUMNS");
         System.out.println("\n\n\n");
-        // logger.info("LINE: ["+getLineNumber()+"] | Printed Game Board...");
+        logger.debug("Printed Game Board...");
+    }
+    /**
+     * The displayBoard prints the game board to the display.
+     * @param gameBoard the game board
+     */
+    public void displayBoard(char[][] gameBoard) {
+        System.out.println("\n");
+        for (int i = 0; i<gameBoard.length; i++)
+        {
+            for (int j = 0; j < gameBoard.length; j++)
+            {      
+                System.out.print(gameBoard[i][j]);
+                if (j == gameBoard.length-1) {
+                    System.out.print("\t\t<= ROW "+(i+1));
+                }
+                // // logger.debug("Row "+ j +" I think: "+(j+1) % gameBoard.length);
+                if (((j+1) % gameBoard.length) == 0)
+                {
+                    if (j < (gameBoard.length)){
+                        System.out.println(" ");
+                    }
+                    if (i < gameBoard.length-1){
+                        for (int j2 = 0; j2 < Math.ceil(gameBoard.length-1); j2++) {
+                            System.out.print("-+");
+                        }
+                    }
+                    if (i < (gameBoard.length-1)){
+                        System.out.println("-");
+                    }
+                }
+                else
+                {
+                    System.out.print("|");
+                }
+            }
+        }    
+        System.out.println("\n");
+        for (int i = 0; i < gameBoard.length; i++) {
+            System.out.print(""+(i+1)+" ");
+        }
+        System.out.println("\n\n⇑-⇑-⇑-COLUMNS");
+        System.out.println("\n\n\n");
+        logger.debug("Printed Game Board...");
     }
     /**
      * Set up the game board with initial whitespace character.
-     * @param gBoard
-     * @return
+     * @param gBoard the game board
+     * @return the setup game board
      */
     public char[][] setupGameBrd(char[][] gBoard){
         // int label = 0;
@@ -487,27 +475,28 @@ public class Board {
             for (int j = 0; j < gBoard.length; j++) {
                 // System.out.println("Sub:" +s);
                 gBoard[i][j] = ' ';
-                // logger.info("Sub: |" +gBoard[i][j]+ "|");
+                // logger.debug("Sub: |" +gBoard[i][j]+ "|");
             }
         }
-        // logger.info("LINE: ["+getLineNumber()+"] | Finished setting up game...");
+        logger.debug("Finished setting up game...");
         return gBoard;
     }
-    /**
-     * Get the current line number of executing thread
-     * @return the integer value line number of executing thread
-     */
-    public static int getLineNumber() {
-        return Thread.currentThread().getStackTrace()[2].getLineNumber();
-    }
+    // /**
+    //  * Get the current line number of executing thread
+    //  * @return the integer value line number of executing thread
+    //  */
+    // public static int getLineNumber() {
+    //     return Thread.currentThread().getStackTrace()[2].getLineNumber();
+    // }
     /**
      * Dynamically checks for a winning pattern based on the board size
      * @param player the player mark
-     * @return
+     * @return true if player won, false if no win
      */
     public boolean hasPlayerWon(char player)
     {
         boolean won = false;
+
         char[][] gBoard = getGameBoard();
         int numberOfColumns = gBoard.length;
         // check the rows
@@ -522,7 +511,7 @@ public class Board {
                 // System.out.println("Valid cntr: "+validityCounter);
                 // get the first value of each set
                 // char firstValue = val.get(i)[0];
-                for (int j = 0; j < numberOfColumns; j++) 
+                for (int j = 0; j < numberOfColumns; j++)
                 {
                     if (player == gBoard[i][j])
                     {
@@ -604,6 +593,29 @@ public class Board {
             }
             return isWinner;
         };
+        
+
+        // List<Point> lMove = new ArrayList<Point>(getLastMove());
+        // Function<Character,Integer> lM = (playerMark) -> {
+        //     int cnt = 0;
+        //     for (Point point : lMove) {
+        //         if (gameBoard[point.getRow()][point.getCol()] == (playerMark)){
+        //             logger.debug("Player mark found: " + gameBoard[point.getRow()][point.getCol()] + " @ Point: "+ point.toString());
+        //             cnt++;
+        //         }
+        //     }
+        //     return cnt;
+        // };
+       
+        // // exit if number of moves less than quantity to constitute a win
+        // if(lMove.size() < gameBoard.length)
+        // {
+        //     return false;
+        // } // exit if number of player mark is less than quantity to constitute a win
+        // else if (lM.apply(player) < gameBoard.length)
+        // {
+        //     return false;
+        // }
         // won = verticalCheck.getAsBoolean();
         // won = diagonalCheckFromTopLeft.getAsBoolean();
         // won = diagonalCheckFromBottomLeft.getAsBoolean();
@@ -612,18 +624,19 @@ public class Board {
                 horizontalCheck.getAsBoolean() == true ? true :
                 diagonalCheckFromTopLeft.getAsBoolean() == true ? true : 
                 diagonalCheckFromBottomLeft.getAsBoolean() == true ? true : false;
+                logger.debug("Player "+player+" has won: "+won);
         return won;
     }
     /**
      * Dynamically checks for a winning pattern based on the board size
      * @param player the player mark
      * @param gBoard the game board
-     * @return
+     * @return true if player won, false if no win
      */
     public boolean hasPlayerWon(char player, char[][] gBoard)
     {
         boolean won = false;
-        
+
         int numberOfColumns = gBoard.length;
         // lambda to check the rows
         BooleanSupplier horizontalCheck = () -> {
@@ -723,6 +736,28 @@ public class Board {
             }
             return isWinner;
         };
+
+        // List<Point> lMove = new ArrayList<Point>(getLastMove());
+        // Function<Character,Integer> lM = (playerMark) -> {
+        //     int cnt = 0;
+        //     for (Point point : lMove) {
+        //         if (gameBoard[point.getRow()][point.getCol()] == (playerMark)){
+        //             logger.debug("Player mark found: " + gameBoard[point.getRow()][point.getCol()] + " @ Point: "+ point.toString());
+        //             cnt++;
+        //         }
+        //     }
+        //     return cnt;
+        // };
+       
+        // // exit if number of moves less than quantity to constitute a win
+        // if(lMove.size() < gameBoard.length)
+        // {
+        //     return false;
+        // } // exit if number of player mark is less than quantity to constitute a win
+        // else if (lM.apply(player) < gameBoard.length)
+        // {
+        //     return false;
+        // }
         // won = verticalCheck.getAsBoolean();
         // won = diagonalCheckFromTopLeft.getAsBoolean();
         // won = diagonalCheckFromBottomLeft.getAsBoolean();
@@ -731,20 +766,21 @@ public class Board {
                 horizontalCheck.getAsBoolean() == true ? true :
                 diagonalCheckFromTopLeft.getAsBoolean() == true ? true : 
                 diagonalCheckFromBottomLeft.getAsBoolean() == true ? true : false;
+                logger.debug("Player "+player+" has won: "+won);
         return won;
     }
     /**
      * Dynamically checks for a winning pattern based on the board size.
      * @param player the player mark
      * @param gBoard the game board
-     * @param number_Of_Patter_To_Check_In_A_Row
-     * @return
+     * @param number_Of_Win_Pattern_To_Check_In_A_Row define the size of the win pattern, i.e. 4x4, 5x5
+     * @return true if player won, false if no win
      */
-    public boolean hasPlayerWon(char player, char[][] gBoard, int number_Of_Patter_To_Check_In_A_Row)
+    public boolean hasPlayerWon(char player, char[][] gBoard, int number_Of_Win_Pattern_To_Check_In_A_Row)
     {
         boolean won = false;
         
-        int numberOfColumns = number_Of_Patter_To_Check_In_A_Row;
+        int numberOfColumns = number_Of_Win_Pattern_To_Check_In_A_Row;
         // lambda to check the rows
         BooleanSupplier horizontalCheck = () -> {
             boolean isWinner = false;
@@ -851,25 +887,31 @@ public class Board {
                 horizontalCheck.getAsBoolean() == true ? true :
                 diagonalCheckFromTopLeft.getAsBoolean() == true ? true : 
                 diagonalCheckFromBottomLeft.getAsBoolean() == true ? true : false;
+        logger.debug("Player "+player+" has won: "+won);
         return won;
     }
-    // ///////////////////////////////////// [ MAIN ] //////////////////////////////////////
-    // public static void main(String[] args) {  
-    //     // char[][] gBoard = new char[3][3]; 
-    //     char[][] gBoard = { {'X',' ',' ','X'},
-    //                         {'X','X','X',' '},
-    //                         {' ',' ','X',' '},
-    //                         {'X',' ',' ',' '}};
-        
-    //     Board bd = new Board();
-    //     // // System.out.println("bd.getSub: "+bd.getSub(3, 3));
-    //     // // System.out.println("bd.getSub: "+bd.getCol(8));
-    //     // // System.out.println("bd.getSub: "+bd.getRow(8));
-    //     // // gBoard = bd.setupGameBrd(gBoard);
-    //     // bd.displayBoard(gBoard);
-    //     System.out.println(bd.hasPlayerWon('X',gBoard,4));
-
+    // public static void main(String[] arg) 
+    // {   
+    //     ///////////////////////////////////////////////////////////////////////
+    //     // TicTacToe t = new TicTacToe();
+	// 	// t.play();
+    //     ///////////////////////////////////////////////////////////////////////
+    //         // TicTacToe t = new TicTacToe();            
+    //         // char[][] gBoard = new char[3][3]; 
+    //         char[][] gBoard = { {'X',' ',' ','X'},
+    //                             {'X','X','X',' '},
+    //                             {' ',' ','X',' '},
+    //                             {'X',' ',' ',' '}};
+    //         Board bd = new Board(gBoard);
+    //         // // System.out.println("bd.getSub: "+bd.getSub(3, 3));
+    //         // // System.out.println("bd.getSub: "+bd.getCol(8));
+    //         // // System.out.println("bd.getSub: "+bd.getRow(8));
+    //         bd.displayBoard(gBoard);
+    //         System.out.println(bd.hasPlayerWon('X'));
+    //     logger.debug("End of Game TicTacToe............");
+    //     // System.out.println("End of test class...");
     // }
+
 /////////////////////   END OF CLASS Board  /////////////////////////
 }
  

@@ -1,9 +1,8 @@
-*.idea
-out
-*.iml
+.*
+!.gitignore
+!.gitkeep
+!.mvn
+target/
+META-INF
 *.log
-.notes
-*.zip
-*.xml
-Exercise*.java
-.vscode/
+GameData.txt
