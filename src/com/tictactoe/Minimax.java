@@ -96,12 +96,13 @@ public class Minimax {
         if (board.hasPlayerWon(board.getComputerMark())) {
             board.setComputerScore(1);		// Returns value to "currentScore"
             // Captures statistical data of possible decision tree return best moves
-            printScore.captureComputerMove(board.getRound(), board.getComputerScore(), point, depth, i, 1);
+            // printScore.captureComputerMove(board.getRound(), board.getComputerScore(), point, depth, i, 1);
         }
         else if (availableCells.isEmpty()) {
             board.setComputerScore(0);		// Returns value to "currentScore"
+            
             // Captures statistical data of AI Computer draw after play is made
-            printScore.captureComputerMove(board.getRound(), board.getComputerScore(), point, depth, i, 0);
+            // printScore.captureComputerMove(board.getRound(), board.getComputerScore(), point, depth, i, 0);
         }
         // Evaluates game state after a move is placed on the game board and returns
         // 0 for draw or 1 for AI computer win or -1 for AI human win
@@ -121,12 +122,12 @@ public class Minimax {
         if (board.hasPlayerWon(board.getHumanMark())) {
             board.sethumanScore(-1);	// Returns value to "currentScore"
             // Captures statistical data of decision upon AI human win
-            printScore.captureHumanMove(board.getRound(), board.getComputerScore(), point, depth, i, -1);
+            // printScore.captureHumanMove(board.getRound(), board.getComputerScore(), point, depth, i, -1);
         }
         else if (availableCells.isEmpty()) {
             board.sethumanScore(0);		// Returns value to "currentScore"
             // Captures statistical data of AI human draw after play is made
-            printScore.captureHumanMove(board.getRound(), board.getComputerScore(), point, depth, i, 0);
+            // printScore.captureHumanMove(board.getRound(), board.getComputerScore(), point, depth, i, 0);
         }
         // Evaluates game state after a move is placed on the game board and returns
         // 0 for draw or 1 for AI computer win or -1 for AI human win
@@ -144,6 +145,7 @@ public class Minimax {
      * @throws IOException
      */
     public int minimax (int depth, char player) throws IOException  {
+        int difficulty = (this.board.getGameBoard().length / 2)+2;
         // Captures all available cells into an array list.
         List<Point> availableCells = new ArrayList<>(board.getAvailableCells());
         if (board.hasPlayerWon(board.getComputerMark()))
@@ -160,12 +162,18 @@ public class Minimax {
         // depth of moves remaining on the board.
         for (int i = 0; i < availableCells.size(); i++) {
             board.setDepth(availableCells.size());
+            /**
+             * Controls the depth of the tree 2^N^N where N is the length of the table
+             */
+            if (availableCells.size() == difficulty) break;
             // The cell/point value to be tested for all possible outcomes
             Point point = availableCells.get(i);
+            point.setBoardSize(this.board.getGameBoard().length);
             // logger.info("LINE: ["+getLineNumber()+"] | Point: "+point.toString());
             // Plays a move for computer AI
             if (player == board.getComputerMark()) {
                 int currentScore = aiComputerMove(point, availableCells.size(), i, availableCells);
+                if (currentScore < -1) continue;
                 // Returns the maximum value for the best move of all iterations
                 max = Math.max(currentScore, max);
                 printScore.setMax(max);

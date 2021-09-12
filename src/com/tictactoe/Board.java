@@ -5,6 +5,8 @@ package com.tictactoe;
 import java.util.ArrayList;
 // import java.util.Arrays;
 import java.util.List;
+import java.util.function.BooleanSupplier;
+
 /**
  * The Board class represents the game board in a Tic Tac Toe game.  
  * This class also contains a AI method using the MiniMax algorithm, 
@@ -41,6 +43,8 @@ public class Board {
     private int humanScore;
     // The value of current depth
     private int depth;
+    // holds the size of the board
+    private int boardSize;
 
     /**
      * The Board method is the Default constructor.
@@ -91,6 +95,25 @@ public class Board {
         // logger.info("LINE: ["+getLineNumber()+"] | Constructor init...");
         // assign game board
         this.gameBoard = setupGameBrd(gameBoard);
+        this.boardSize = this.gameBoard.length;
+    }
+    /**
+     * Sets the board size
+     */
+    public void setBoardSize(){
+        this.boardSize = this.gameBoard.length;
+    }
+    /**
+     * Sets the board size
+     */
+    public void setBoardSize(int size){
+        this.boardSize = size;
+    }
+    /**
+     * Sets the board size
+     */
+    public void setBoardSize(char[][] gameBoard){
+        this.boardSize = gameBoard.length;
     }
     /**
      * The getRound method returns the value of the
@@ -204,7 +227,7 @@ public class Board {
      * @return		The index value of the cell on the board.
      */
     public int getSub(int r, int c)	{
-        return (r - 1) * 3 + (c - 1);
+        return (r - 1) * this.boardSize + (c - 1);
     }
     /**
      * The getRow method accepts the value for the subscript
@@ -213,7 +236,7 @@ public class Board {
      * @return		The value of the row.
      */
     public int getRow(int sub) {
-        return (sub / 3) + 1;
+        return (sub / this.boardSize) + 1;
     }
     /**
      * The getCol method accepts the value of the subscript
@@ -222,7 +245,7 @@ public class Board {
      * @return		The value of the column.
      */
     public int getCol(int sub) {
-        return (sub % 3) + 1;
+        return (sub % this.boardSize) + 1;
     }
     /**
      * The getComputerMove returns the row and column
@@ -288,46 +311,46 @@ public class Board {
                 // logger.info("LINE: ["+getLineNumber()+"] | Game is Over: "+over);
                 return over;
     }
-    /**
-     * The hasPlayerWon method accepts a player mark and returns
-     * a true or false value if winner exist or not.
-     *    0     1     2
-     * ___________________
-     * |__o__|__x__|__o__|  <=  0  
-     * |__x__|__x__|__x__|  <=  1 [   |ROWS|   ]
-     * |__o__|__o__|__x__|  <=  2
-     * ^___[ COLUMNS ]___^
-     * 
-     * Their is a pattern that opens up from the few sequences below. 
-     * Can we find an equation to abstract each sequence. Yes...
-     * 
-     * Horizontal sequence = [0][0],[0][1],[0][2]
-     * Vertical sequence = [0][0],[1][0],[2][0] 
-     * Diagonal sequence A = [0][0],[1][1],[2][2]
-     * Diagonal sequence B = [2][0],[1][1],[0][2]
-     * Sequences:
-     *  0,1,2 : a_n = n − 1
-     *  1,2,3 : a_n = n
-     *  2,3,4 : a_n = n + 1
-     *  0,4,8 : a_n = 4n - 4
-     *  6,4,2 : a_n = 2n + 8
-     * 
-     * @param player	The player mark.
-     * @return			The true or false if winner exist or not.
-     */
-    public boolean hasPlayerWon(char player) {
-        // Horizontal/Vertical/Diagonal row check
-        boolean hasWon = ((gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
-                        (gameBoard[1][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[1][2] && gameBoard[1][2] == player) ||
-                        (gameBoard[2][0] == gameBoard[2][1] && gameBoard[2][1] == gameBoard[2][2] && gameBoard[2][2] == player) ||
-                        (gameBoard[0][0] == gameBoard[1][0] && gameBoard[1][0] == gameBoard[2][0] && gameBoard[2][0] == player) ||
-                        (gameBoard[0][1] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][1] && gameBoard[2][1] == player) ||
-                        (gameBoard[0][2] == gameBoard[1][2] && gameBoard[1][2] == gameBoard[2][2] && gameBoard[2][2] == player) ||
-                        (gameBoard[0][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][2] && gameBoard[2][2] == player) ||
-                        (gameBoard[0][2] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][0] && gameBoard[2][0] == player));
-        // logger.info("LINE: ["+getLineNumber()+"] | Has Player Won: "+hasWon);
-        return hasWon;
-    }
+    // /**
+    //  * The hasPlayerWon method accepts a player mark and returns
+    //  * a true or false value if winner exist or not.
+    //  *    0     1     2
+    //  * ___________________
+    //  * |__o__|__x__|__o__|  <=  0  
+    //  * |__x__|__x__|__x__|  <=  1 [   |ROWS|   ]
+    //  * |__o__|__o__|__x__|  <=  2
+    //  * ^___[ COLUMNS ]___^
+    //  * 
+    //  * Their is a pattern that opens up from the few sequences below. 
+    //  * Can we find an equation to abstract each sequence. Yes...
+    //  * 
+    //  * Horizontal sequence = [0][0],[0][1],[0][2]
+    //  * Vertical sequence = [0][0],[1][0],[2][0] 
+    //  * Diagonal sequence A = [0][0],[1][1],[2][2]
+    //  * Diagonal sequence B = [2][0],[1][1],[0][2]
+    //  * Sequences:
+    //  *  0,1,2 : a_n = n − 1
+    //  *  1,2,3 : a_n = n
+    //  *  2,3,4 : a_n = n + 1
+    //  *  0,4,8 : a_n = 4n - 4
+    //  *  6,4,2 : a_n = 2n + 8
+    //  * 
+    //  * @param player	The player mark.
+    //  * @return			The true or false if winner exist or not.
+    //  */
+    // public boolean hasPlayerWon(char player) {
+    //     // Horizontal/Vertical/Diagonal row check
+    //     boolean hasWon = ((gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
+    //                     (gameBoard[1][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[1][2] && gameBoard[1][2] == player) ||
+    //                     (gameBoard[2][0] == gameBoard[2][1] && gameBoard[2][1] == gameBoard[2][2] && gameBoard[2][2] == player) ||
+    //                     (gameBoard[0][0] == gameBoard[1][0] && gameBoard[1][0] == gameBoard[2][0] && gameBoard[2][0] == player) ||
+    //                     (gameBoard[0][1] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][1] && gameBoard[2][1] == player) ||
+    //                     (gameBoard[0][2] == gameBoard[1][2] && gameBoard[1][2] == gameBoard[2][2] && gameBoard[2][2] == player) ||
+    //                     (gameBoard[0][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][2] && gameBoard[2][2] == player) ||
+    //                     (gameBoard[0][2] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][0] && gameBoard[2][0] == player));
+    //     // logger.info("LINE: ["+getLineNumber()+"] | Has Player Won: "+hasWon);
+    //     return hasWon;
+    // }
     /**
      * The getAvailableCells method retrieves and returns a
      * list available empty cells on the game board.
@@ -406,7 +429,7 @@ public class Board {
         for (int i = 0; i < gameBoard.length; i++) {
             System.out.print(""+(i+1)+" ");
         }
-        System.out.println("\n\n---COLUMN");
+        System.out.println("\n\n\u21C8-⇑-⇑-⇑-COLUMNS");
         System.out.println("\n\n\n");
         // logger.info("LINE: ["+getLineNumber()+"] | Printed Game Board...");
     }
@@ -449,26 +472,26 @@ public class Board {
         for (int i = 0; i < gameBoard.length; i++) {
             System.out.print(""+(i+1)+" ");
         }
-        System.out.println("\n\n---COLUMN");
+        System.out.println("\n\n⇑-⇑-⇑-COLUMNS");
         System.out.println("\n\n\n");
         // logger.info("LINE: ["+getLineNumber()+"] | Printed Game Board...");
     }
     /**
      * Set up the game board with initial whitespace character.
-     * @param gb
+     * @param gBoard
      * @return
      */
-    public char[][] setupGameBrd(char[][] gb){
+    public char[][] setupGameBrd(char[][] gBoard){
         // int label = 0;
-        for (int i = 0; i < gb.length; i++) {
-            for (int j = 0; j < gb.length; j++) {
+        for (int i = 0; i < gBoard.length; i++) {
+            for (int j = 0; j < gBoard.length; j++) {
                 // System.out.println("Sub:" +s);
-                gb[i][j] = ' ';
-                // logger.info("Sub: |" +gb[i][j]+ "|");
+                gBoard[i][j] = ' ';
+                // logger.info("Sub: |" +gBoard[i][j]+ "|");
             }
         }
         // logger.info("LINE: ["+getLineNumber()+"] | Finished setting up game...");
-        return gb;
+        return gBoard;
     }
     /**
      * Get the current line number of executing thread
@@ -477,54 +500,374 @@ public class Board {
     public static int getLineNumber() {
         return Thread.currentThread().getStackTrace()[2].getLineNumber();
     }
-
-    // TODO: have to finish making the hasPlayerWon scalable
-    // Horizontal function: (L*n - L) where L is the length of the array
-    // public boolean hasPlayerWon(char player, char[][] gBoard)
-    // {
-    //     boolean isWinner;
-    //     List<char[]> val = new ArrayList<char[]>();
-    //     int valid_Counter= 0; // counts how many time a match is found
-    //     int numberOfColumns = gBoard.length ;
-    //     // get all the rows for checking
-    //     for (int i = 0; i < numberOfColumns; i++)
-    //         val.add(gBoard[i]);
-    //     // now check each set of rows
-    //     for (int i = 1; i < numberOfColumns; i++) 
-    //     {   
-    //         int setNumber = ((numberOfColumns * i) - numberOfColumns);
-    //         System.out.pr
-    //         // get the first value of each set
-    //         char firstValue = val.get(setNumber)[i-1];
-    //         for (int j = 0; j < numberOfColumns; j++)
-    //             if (firstValue == val.get(setNumber)[j])
-    //                 valid_Counter++;
-    //     }
-    //     if (valid_Counter == numberOfColumns)
-    //         return true;
-    //     else
-    //         isWinner = false;
-
+    /**
+     * Dynamically checks for a winning pattern based on the board size
+     * @param player the player mark
+     * @return
+     */
+    public boolean hasPlayerWon(char player)
+    {
+        boolean won = false;
+        char[][] gBoard = getGameBoard();
+        int numberOfColumns = gBoard.length;
+        // check the rows
+        BooleanSupplier horizontalCheck = () -> {
+            boolean isWinner = false;
+            // counts how many time a match is found
+            int validityCounter; 
+            // now check each set of rows
+            for (int i = 0; i < numberOfColumns; i++) 
+            {   // reset counter after every row check
+                validityCounter= 0; 
+                // System.out.println("Valid cntr: "+validityCounter);
+                // get the first value of each set
+                // char firstValue = val.get(i)[0];
+                for (int j = 0; j < numberOfColumns; j++) 
+                {
+                    if (player == gBoard[i][j])
+                    {
+                        validityCounter++;
+                        // System.out.println("Valid cntr: "+validityCounter);
+                        if (validityCounter == numberOfColumns) 
+                            return isWinner = true;
+                    }
+                    // else break;
+                }
+            }
+            return isWinner;            
+        };
+        // check the columns
+        BooleanSupplier verticalCheck = () -> {
+            boolean isWinner = false;
+            // counts how many time a match is found
+            int validityCounter; 
+            // get all the columns for checking
+            for (int i = 0; i < numberOfColumns; i++)
+            {   // reset counter after every row check
+                validityCounter= 0; 
+                // System.out.println("Valid cntr: "+validityCounter);
+                for (int j = 0; j < numberOfColumns; j++) 
+                {
+                    if (player == gBoard[j][i])
+                    {
+                        validityCounter++;
+                        // System.out.println("Valid cntr: "+validityCounter);
+                        if (validityCounter == numberOfColumns) 
+                            return isWinner = true;
+                    }
+                    // else break;
+                }
+            }
+            return isWinner;
+        };
+        // check the diagonal from top left
+        BooleanSupplier diagonalCheckFromTopLeft = () -> {
+            boolean isWinner = false;
+            // counts how many time a match is found
+            // reset counter after every row check
+            int validityCounter = 0; 
+            /// check diagonal from top left
+            for (int i = 0; i < numberOfColumns; i++)
+            {   
+                // System.out.println("Valid cntr: "+validityCounter);
+                // System.out.println("Row calc: "+i+" | Column: "+i);
+                if (player == gBoard[i][i])
+                {
+                    validityCounter++;
+                    // System.out.println("Valid cntr: "+validityCounter);
+                    if (validityCounter == numberOfColumns) 
+                        return isWinner = true;
+                }
+                // else break;
+            }
+            return isWinner;
+        };
+        // check the diagonal from bottom left
+        BooleanSupplier diagonalCheckFromBottomLeft = () -> {
+            boolean isWinner = false;
+            // counts how many time a match is found
+            // reset counter after every row check
+            int validityCounter = 0; 
+            // check diagonal from bottom lift
+            for (int i = 0; i < numberOfColumns; i++) 
+            { // Count down function: a_n = -i + numberOfColumns
+                // System.out.println("Valid cntr: "+validityCounter);
+                // System.out.println("Row calc: "+(numberOfColumns - (i+1))+" | Column: "+i);
+                if (player == gBoard[(numberOfColumns - (i+1))][i])
+                {
+                    validityCounter++;
+                    // System.out.println("Valid cntr: "+validityCounter);
+                    if (validityCounter == numberOfColumns) 
+                        return isWinner = true;
+                }
+                // else break;
+            }
+            return isWinner;
+        };
+        // won = verticalCheck.getAsBoolean();
+        // won = diagonalCheckFromTopLeft.getAsBoolean();
+        // won = diagonalCheckFromBottomLeft.getAsBoolean();
+        // won = horizontalCheck.getAsBoolean();
+        won =   verticalCheck.getAsBoolean() == true ? true : 
+                horizontalCheck.getAsBoolean() == true ? true :
+                diagonalCheckFromTopLeft.getAsBoolean() == true ? true : 
+                diagonalCheckFromBottomLeft.getAsBoolean() == true ? true : false;
+        return won;
+    }
+    /**
+     * Dynamically checks for a winning pattern based on the board size
+     * @param player the player mark
+     * @param gBoard the game board
+     * @return
+     */
+    public boolean hasPlayerWon(char player, char[][] gBoard)
+    {
+        boolean won = false;
         
-
-
-    //     return isWinner;
-    // }
+        int numberOfColumns = gBoard.length;
+        // lambda to check the rows
+        BooleanSupplier horizontalCheck = () -> {
+            boolean isWinner = false;
+            List<char[]> val = new ArrayList<char[]>();
+            // counts how many time a match is found
+            int validityCounter; 
+            // get all the rows for checking
+            for (int i = 0; i < numberOfColumns; i++)
+            val.add(gBoard[i]);
+            // now check each set of rows
+            for (int i = 0; i < numberOfColumns; i++) 
+            {   // reset counter after every row check
+                validityCounter= 0; 
+                // System.out.println("Valid cntr: "+validityCounter);
+                // get the first value of each set
+                // char firstValue = val.get(i)[0];
+                for (int j = 0; j < numberOfColumns; j++) 
+                {
+                    if (player == val.get(i)[j])
+                    {
+                        validityCounter++;
+                        // System.out.println("Valid cntr: "+validityCounter);
+                        if (validityCounter == numberOfColumns) 
+                            return isWinner = true;
+                    }
+                    // else break;
+                }
+            }
+            return isWinner;            
+        };
+        // lambda to check the columns
+        BooleanSupplier verticalCheck = () -> {
+            boolean isWinner = false;
+            // counts how many time a match is found
+            int validityCounter; 
+            // get all the columns for checking
+            for (int i = 0; i < numberOfColumns; i++)
+            {   // reset counter after every row check
+                validityCounter= 0; 
+                // System.out.println("Valid cntr: "+validityCounter);
+                for (int j = 0; j < numberOfColumns; j++) 
+                {
+                    if (player == gBoard[j][i])
+                    {
+                        validityCounter++;
+                        // System.out.println("Valid cntr: "+validityCounter);
+                        if (validityCounter == numberOfColumns) 
+                            return isWinner = true;
+                    }
+                    // else break;
+                }
+            }
+            return isWinner;
+        };
+        // lambda to check the diagonal from top left
+        BooleanSupplier diagonalCheckFromTopLeft = () -> {
+            boolean isWinner = false;
+            // counts how many time a match is found
+            // reset counter after every row check
+            int validityCounter = 0; 
+            /// check diagonal from top left
+            for (int i = 0; i < numberOfColumns; i++)
+            {   
+                // System.out.println("Valid cntr: "+validityCounter);
+                // System.out.println("Row calc: "+i+" | Column: "+i);
+                if (player == gBoard[i][i])
+                {
+                    validityCounter++;
+                    // System.out.println("Valid cntr: "+validityCounter);
+                    if (validityCounter == numberOfColumns) 
+                        return isWinner = true;
+                }
+                // else break;
+            }
+            return isWinner;
+        };
+        // lambda to check the diagonal from bottom left
+        BooleanSupplier diagonalCheckFromBottomLeft = () -> {
+            boolean isWinner = false;
+            // counts how many time a match is found
+            // reset counter after every row check
+            int validityCounter = 0; 
+            // check diagonal from bottom lift
+            for (int i = 0; i < numberOfColumns; i++) 
+            { // Count down function: a_n = -i + numberOfColumns
+                // System.out.println("Valid cntr: "+validityCounter);
+                // System.out.println("Row calc: "+(numberOfColumns - (i+1))+" | Column: "+i);
+                if (player == gBoard[(numberOfColumns - (i+1))][i])
+                {
+                    validityCounter++;
+                    // System.out.println("Valid cntr: "+validityCounter);
+                    if (validityCounter == numberOfColumns) 
+                        return isWinner = true;
+                }
+                // else break;
+            }
+            return isWinner;
+        };
+        // won = verticalCheck.getAsBoolean();
+        // won = diagonalCheckFromTopLeft.getAsBoolean();
+        // won = diagonalCheckFromBottomLeft.getAsBoolean();
+        // won = horizontalCheck.getAsBoolean();
+        won =   verticalCheck.getAsBoolean() == true ? true : 
+                horizontalCheck.getAsBoolean() == true ? true :
+                diagonalCheckFromTopLeft.getAsBoolean() == true ? true : 
+                diagonalCheckFromBottomLeft.getAsBoolean() == true ? true : false;
+        return won;
+    }
+    /**
+     * Dynamically checks for a winning pattern based on the board size.
+     * @param player the player mark
+     * @param gBoard the game board
+     * @param number_Of_Patter_To_Check_In_A_Row
+     * @return
+     */
+    public boolean hasPlayerWon(char player, char[][] gBoard, int number_Of_Patter_To_Check_In_A_Row)
+    {
+        boolean won = false;
+        
+        int numberOfColumns = number_Of_Patter_To_Check_In_A_Row;
+        // lambda to check the rows
+        BooleanSupplier horizontalCheck = () -> {
+            boolean isWinner = false;
+            List<char[]> val = new ArrayList<char[]>();
+            // counts how many time a match is found
+            int validityCounter; 
+            // get all the rows for checking
+            for (int i = 0; i < numberOfColumns; i++)
+            val.add(gBoard[i]);
+            // now check each set of rows
+            for (int i = 0; i < numberOfColumns; i++) 
+            {   // reset counter after every row check
+                validityCounter= 0; 
+                // System.out.println("Valid cntr: "+validityCounter);
+                // get the first value of each set
+                // char firstValue = val.get(i)[0];
+                for (int j = 0; j < numberOfColumns; j++) 
+                {
+                    if (player == val.get(i)[j])
+                    {
+                        validityCounter++;
+                        // System.out.println("Valid cntr: "+validityCounter);
+                        if (validityCounter == numberOfColumns) 
+                            return isWinner = true;
+                    }
+                    // else break;
+                }
+            }
+            return isWinner;            
+        };
+        // lambda to check the columns
+        BooleanSupplier verticalCheck = () -> {
+            boolean isWinner = false;
+            // counts how many time a match is found
+            int validityCounter; 
+            // get all the columns for checking
+            for (int i = 0; i < numberOfColumns; i++)
+            {   // reset counter after every row check
+                validityCounter= 0; 
+                // System.out.println("Valid cntr: "+validityCounter);
+                for (int j = 0; j < numberOfColumns; j++) 
+                {
+                    if (player == gBoard[j][i])
+                    {
+                        validityCounter++;
+                        // System.out.println("Valid cntr: "+validityCounter);
+                        if (validityCounter == numberOfColumns) 
+                            return isWinner = true;
+                    }
+                    // else break;
+                }
+            }
+            return isWinner;
+        };
+        // lambda to check the diagonal from top left
+        BooleanSupplier diagonalCheckFromTopLeft = () -> {
+            boolean isWinner = false;
+            // counts how many time a match is found
+            // reset counter after every row check
+            int validityCounter = 0; 
+            /// check diagonal from top left
+            for (int i = 0; i < numberOfColumns; i++)
+            {   
+                // System.out.println("Valid cntr: "+validityCounter);
+                // System.out.println("Row calc: "+i+" | Column: "+i);
+                if (player == gBoard[i][i])
+                {
+                    validityCounter++;
+                    // System.out.println("Valid cntr: "+validityCounter);
+                    if (validityCounter == numberOfColumns) 
+                        return isWinner = true;
+                }
+                // else break;
+            }
+            return isWinner;
+        };
+        // lambda to check the diagonal from bottom left
+        BooleanSupplier diagonalCheckFromBottomLeft = () -> {
+            boolean isWinner = false;
+            // counts how many time a match is found
+            // reset counter after every row check
+            int validityCounter = 0; 
+            // check diagonal from bottom lift
+            for (int i = 0; i < numberOfColumns; i++) 
+            { // Count down function: a_n = -i + numberOfColumns
+                // System.out.println("Valid cntr: "+validityCounter);
+                // System.out.println("Row calc: "+(numberOfColumns - (i+1))+" | Column: "+i);
+                if (player == gBoard[(numberOfColumns - (i+1))][i])
+                {
+                    validityCounter++;
+                    // System.out.println("Valid cntr: "+validityCounter);
+                    if (validityCounter == numberOfColumns) 
+                        return isWinner = true;
+                }
+                // else break;
+            }
+            return isWinner;
+        };
+        // won = verticalCheck.getAsBoolean();
+        // won = diagonalCheckFromTopLeft.getAsBoolean();
+        // won = diagonalCheckFromBottomLeft.getAsBoolean();
+        // won = horizontalCheck.getAsBoolean();
+        won =   verticalCheck.getAsBoolean() == true ? true : 
+                horizontalCheck.getAsBoolean() == true ? true :
+                diagonalCheckFromTopLeft.getAsBoolean() == true ? true : 
+                diagonalCheckFromBottomLeft.getAsBoolean() == true ? true : false;
+        return won;
+    }
     // ///////////////////////////////////// [ MAIN ] //////////////////////////////////////
     // public static void main(String[] args) {  
-    //     // char[][] gb = new char[3][3]; 
-    //     char[][] gb = {{'X','X','X'},
-    //                    {' ','X',' '},
-    //                    {' ',' ','X'}};
+    //     // char[][] gBoard = new char[3][3]; 
+    //     char[][] gBoard = { {'X',' ',' ','X'},
+    //                         {'X','X','X',' '},
+    //                         {' ',' ','X',' '},
+    //                         {'X',' ',' ',' '}};
         
     //     Board bd = new Board();
-    //     // System.out.println("bd.getSub: "+bd.getSub(3, 3));
-    //     // System.out.println("bd.getSub: "+bd.getCol(8));
-    //     // System.out.println("bd.getSub: "+bd.getRow(8));
-    //     // gb = bd.setupGameBrd(gb);
-    //     bd.displayBoard(gb);
-    //     System.out.println(bd.hasPlayerWon('X',gb));
-        
+    //     // // System.out.println("bd.getSub: "+bd.getSub(3, 3));
+    //     // // System.out.println("bd.getSub: "+bd.getCol(8));
+    //     // // System.out.println("bd.getSub: "+bd.getRow(8));
+    //     // // gBoard = bd.setupGameBrd(gBoard);
+    //     // bd.displayBoard(gBoard);
+    //     System.out.println(bd.hasPlayerWon('X',gBoard,4));
 
     // }
 /////////////////////   END OF CLASS Board  /////////////////////////

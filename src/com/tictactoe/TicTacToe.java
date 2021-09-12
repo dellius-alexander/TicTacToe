@@ -41,6 +41,8 @@ public class TicTacToe {
     private static final int USERS_TURN = 1;
     // A constant that represents computer
     private static final int COMPUTERS_TURN = 0;
+    // remember to get the size of the game board
+    private int boardSize;
     // Holds the symbol/mark computer will be assigned at the start of game
     private char computersMark;
     // Holds the symbol/mark user will be assigned at the start of game
@@ -75,7 +77,8 @@ public class TicTacToe {
        // Log a simple INFO message.
        // logger.info("Constructor init...");
         board = askBoardSize() ;
-    
+       // assign the boardSize
+       boardSize =  board.getGameBoard().length;
         // Instantiate Minimax class algorithm
         mini = new Minimax(board);
         // Instantiate the PointAndScore class
@@ -108,7 +111,7 @@ public class TicTacToe {
      * @return		The value of the row.
      */
     public int getRow(int sub) {
-        return (sub / 3) + 1;
+        return (sub / this.boardSize) + 1;
     }
     /**
      * The getCol method accepts the value of the subscript
@@ -117,7 +120,7 @@ public class TicTacToe {
      * @return		The value of the column.
      */
     public int getCol(int sub) {
-        return (sub % 3) + 1;
+        return (sub % this.boardSize) + 1;
     }
     /**
      * The firstMove method will randomly decide who goes first.
@@ -171,13 +174,13 @@ public class TicTacToe {
                 test = sub % 2;
             } while (test == 1 || sub == (board.getGameBoard().length));
             Point point = new Point(getRow(sub), getCol(sub));
+            point.setBoardSize(this.boardSize);
             board.placeAMove(point, computersMark);
             System.out.println();
-            System.out.print("I marked " + computersMark +
-                    " at row (1-3): " + point.getRow());
+            System.out.printf("I marked %s at row (1-%d): %d",computersMark, this.boardSize, point.getRow());
             // Prints newline character
             System.out.println();
-            System.out.print("\t    column(1-3): " + point.getCol());
+            System.out.printf("\t    column(1-%d): %d",this.boardSize, point.getCol());
             System.out.println();
             board.displayBoard();
             turn = USERS_TURN;
@@ -223,20 +226,20 @@ public class TicTacToe {
      */
     public void humanMove() throws SecurityException, IOException {
         Point point = new Point();
+        point.setBoardSize(this.boardSize);
         boolean emptySubscript;
         int row;
         int col;
-        String inputValidator = "[123]";
+        String inputValidator = "^[0-9]*$";
         do {
             do {
-                System.out.print("YOUR TURN, enter " + humansMark +
-                        " at \n \t     row(1-3):  ");
+                System.out.printf("YOUR TURN, enter %s at row(1-%d):  ",humansMark,this.boardSize);
                 input = keyboard.next().trim();
             } while (!input.matches(inputValidator));
             row = Integer.parseInt(input);
 
             do {
-                System.out.print("Now enter column(1-3): ");
+                System.out.printf("Now enter column number(1-%d):  ",this.boardSize);
                 input = keyboard.next().trim();
             } while (!input.matches(inputValidator));
             col = Integer.parseInt(input);
@@ -268,12 +271,10 @@ public class TicTacToe {
         print.printResults();
         System.out.println();
         System.out.println();
-        System.out.print("MY TURN, I marked " + computersMark +
-                " at \n\t    row (1-3): " +
-                board.getComputerMove().getRow());
+        System.out.printf("MY TURN, I marked %s at row (1-%d): %d",computersMark, this.boardSize, board.getComputerMove().getRow());
         // Prints newline character
         System.out.println();
-        System.out.print("\t  column(1-3): " + board.getComputerMove().getCol());
+        System.out.printf("\t    column(1-%d): %d",this.boardSize, board.getComputerMove().getCol());
         board.placeAMove(board.getComputerMove(), computersMark);
         System.out.println();
         System.out.println();

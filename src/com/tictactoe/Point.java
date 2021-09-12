@@ -20,6 +20,7 @@ public class Point {
     private int col;
     private int sub;
     private Point computerMove;
+    private int boardSize;
 
     /**
      * The class default constructor.
@@ -68,8 +69,8 @@ public class Point {
         // Log a simple INFO message.
         // logger.info("LINE: ["+getLineNumber()+"] | Constructor init...");
         s -= 1;
-        this.row = (s / 3) + 1;
-        this.col = (s % 3) + 1;
+        this.row = (s / this.boardSize) + 1;
+        this.col = (s % this.boardSize) + 1;
         this.sub = s;
         // logger.info("LINE: ["+getLineNumber()+"] | Subscript: "+s+" | Row: "+this.row+" | Column: "+this.col);
         computerMove = new Point(row,col);
@@ -102,13 +103,28 @@ public class Point {
         // logger.info("LINE: ["+getLineNumber()+"] | Constructor init...");
         this.row = r-1;
         this.col = c-1;
-        this.sub = (r - 1) * 3 + (c - 1);
+        this.sub = (r - 1) * this.boardSize + (c - 1);
         // logger.info("LINE: ["+getLineNumber()+"] | Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
     }
-
+    /**
+     * Sets the board size
+     */
+    public void setBoardSize(int size){
+        this.boardSize = size;
+    }
+    /**
+     * Sets the board size
+     */
+    public void setBoardSize(char[][] gameBoard){
+        this.boardSize = gameBoard.length;
+    }
+    /**
+     * Sets the row and column values from the subscript
+     * @param sub
+     */
     public void setPoints(int sub) {
-        this.row = (sub / 3) + 1;
-        this.col = (sub % 3) + 1;
+        this.row = (sub / this.boardSize) + 1;
+        this.col = (sub % this.boardSize) + 1;
         // logger.info("LINE: ["+getLineNumber()+"] | Subscript: "+sub+" | Row: "+this.row+" | Column: "+this.col);
     }
     /**
@@ -137,8 +153,8 @@ public class Point {
      */
     public int getRow(int s) {
         this.sub = s;
-        this.row = (sub / 3) + 1;
-        this.col = (sub % 3) + 1;
+        this.row = (sub / this.boardSize) + 1;
+        this.col = (sub % this.boardSize) + 1;
         // logger.info("LINE: ["+getLineNumber()+"] | Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return this.row;
     }
@@ -158,8 +174,8 @@ public class Point {
      */
     public int getCol(int s) {
         this.sub = s;
-        this.row = (s / 3) + 1;
-        this.col = (s % 3) + 1;
+        this.row = (s / this.boardSize) + 1;
+        this.col = (s % this.boardSize) + 1;
         // logger.info("LINE: ["+getLineNumber()+"] | Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return this.col;
     }
@@ -168,7 +184,7 @@ public class Point {
      * @return		The subscript reference.
      */
     public int getSub() {
-        // this.sub = (this.row-1) * 3 + (this.col-1);
+        // this.sub = (this.row-1) * this.boardSize + (this.col-1);
         // logger.info("LINE: ["+getLineNumber()+"] | Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return this.sub;
     }
@@ -182,7 +198,7 @@ public class Point {
     public int getSub(int row, int col) {
         this.row = row-1;
         this.col = col-1;
-        this.sub = (row - 1) * 3 + (col - 1);
+        this.sub = (row - 1) * this.boardSize + (col - 1);
         // logger.info("LINE: ["+getLineNumber()+"] | Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return this.sub;
     }
@@ -216,7 +232,7 @@ public class Point {
     public void setComputerMove(int row, int col) {
         this.row = row-1;
         this.col = col-1;
-        this.sub = (row - 1) * 3 + (col - 1);
+        this.sub = (row - 1) * this.boardSize + (col - 1);
         this.computerMove = new Point(row, col);
         // logger.info("LINE: ["+getLineNumber()+"] | Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
     }
