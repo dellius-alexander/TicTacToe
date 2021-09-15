@@ -1,4 +1,4 @@
-# TicTacToe VSCode Template
+# TicTacToe VSCode Dev Environment Template
 
 This Branch exists to extend the project scope, where anyone can setup a docker dev environment with maven and java.  
 
