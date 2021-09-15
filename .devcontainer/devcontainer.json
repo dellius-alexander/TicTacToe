@@ -1,0 +1,58 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.194.0/containers/java
+{
+	"name": "TicTacToe",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			// Define a container User
+			"USERNAME": "vscode",
+			"USERCRED": "12345",
+			"USER_UID": "1000",
+			// Update the VARIANT arg to pick a Java version: 11, 16
+			"VARIANT": "11",
+			// Options
+			"INSTALL_MAVEN": "true",
+			"INSTALL_GRADLE": "false",
+			"NODE_VERSION": "none",
+			"APP_DIR": "/home/vscode/TicTacToe",
+			"GIT_REPO": "https://github.com/dellius-alexander/TicTacToe.git",
+			"GIT_BRANCH": "2DVERSION",
+			"MAVEN_VERSION": "3.8.2",
+			"GIT_USER": "dellius-alexander",
+			"GIT_EMAIL": "dellius.alexander@gmail.com",
+			"INSTALL_ZSH": "true",
+			
+		}
+	},
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": { 
+		"java.home": "/docker-java-home"
+	},
+	
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"vscjava.vscode-java-pack",
+		"redhat.java",
+		"redhat.vscode-commons",
+		"ms-azuretools.vscode-docker",
+		"davidanson.vscode-markdownlint",
+		"dotjoshjohnson.xml",
+		"redhat.fabric8-analytics"
+	],
+	
+	// Workspace folder in container
+	"workspaceFolder": "/home/vscode/TicTacToe",
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "java -version && echo '' && javac -version && echo '' && ls -lia ${APP_DIR} && /usr/bin/zsh",
+
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode",
+
+
+}
