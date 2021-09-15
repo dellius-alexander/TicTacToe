@@ -474,7 +474,8 @@ public class Board {
         for (int i = 0; i < gBoard.length; i++) {
             for (int j = 0; j < gBoard.length; j++) {
                 // System.out.println("Sub:" +s);
-                gBoard[i][j] = ' ';
+                if (gBoard[i][j] != ' ' && gBoard[i][j] != 'X' && gBoard[i][j] != 'O')
+                    gBoard[i][j] = ' ';
                 // logger.debug("Sub: |" +gBoard[i][j]+ "|");
             }
         }
@@ -890,27 +891,27 @@ public class Board {
         logger.debug("Player "+player+" has won: "+won);
         return won;
     }
-    // public static void main(String[] arg) 
-    // {   
-    //     ///////////////////////////////////////////////////////////////////////
-    //     // TicTacToe t = new TicTacToe();
-	// 	// t.play();
-    //     ///////////////////////////////////////////////////////////////////////
-    //         // TicTacToe t = new TicTacToe();            
-    //         // char[][] gBoard = new char[3][3]; 
-    //         char[][] gBoard = { {'X',' ',' ','X'},
-    //                             {'X','X','X',' '},
-    //                             {' ',' ','X',' '},
-    //                             {'X',' ',' ',' '}};
-    //         Board bd = new Board(gBoard);
-    //         // // System.out.println("bd.getSub: "+bd.getSub(3, 3));
-    //         // // System.out.println("bd.getSub: "+bd.getCol(8));
-    //         // // System.out.println("bd.getSub: "+bd.getRow(8));
-    //         bd.displayBoard(gBoard);
-    //         System.out.println(bd.hasPlayerWon('X'));
-    //     logger.debug("End of Game TicTacToe............");
-    //     // System.out.println("End of test class...");
-    // }
+    public static void main(String[] arg) 
+    {   
+        ///////////////////////////////////////////////////////////////////////
+        // TicTacToe t = new TicTacToe();
+		// t.play();
+        ///////////////////////////////////////////////////////////////////////
+            // TicTacToe t = new TicTacToe();            
+            // char[][] gBoard = new char[3][3]; 
+            char[][] gBoard = { {'X',' ',' ','X'},
+                                {'X','X','X',' '},
+                                {' ',' ','X',' '},
+                                {'X',' ',' ',' '}};
+            Board bd = new Board(gBoard);
+            // // System.out.println("bd.getSub: "+bd.getSub(3, 3));
+            // // System.out.println("bd.getSub: "+bd.getCol(8));
+            // // System.out.println("bd.getSub: "+bd.getRow(8));
+            bd.displayBoard();
+            System.out.println(bd.hasPlayerWon('X'));
+        logger.debug("End of Game TicTacToe............");
+        // System.out.println("End of test class...");
+    }
 
 /////////////////////   END OF CLASS Board  /////////////////////////
 }

@@ -21,13 +21,13 @@ ERROR 	YES 	  YES 	  YES 	YES 	YES 	  NO
        available to all subsequent configuration elements. -->
   <timestamp key="dateTimeFormat" datePattern="yyyyMMdd'T'HHmm"/>
   <!-- Assign a LOG_DIR property -->
-  <property name="LOG_DIR" value="/home/dalexander/Repos/TicTacToe/data"/>
+  <property name="LOG_DIR" value="data"/>
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
     <!-- use the previously created timestamp to create a uniquely
          named log file -->
     <file>${LOG_DIR}/tictactoe-${dateTimeFormat}.log</file>
     <encoder>
-      <pattern>%d{HH:mm:ss.SSS} [%t] [%-5level] [%logger{36}] |- %msg%n</pattern>
+      <pattern>%d{HH:mm:ss.SSS} [%t] [%-5level] [%logger{10}.%M][%L] |- %msg%n</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
         <level>DEBUG</level>
@@ -36,7 +36,7 @@ ERROR 	YES 	  YES 	  YES 	YES 	YES 	  NO
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <withJansi>true</withJansi>
     <encoder>
-      <pattern>%d{HH:mm:ss.SSS} [%t] [%highlight(%-5level)] [%cyan(%logger{15})] |- %msg %n</pattern>
+      <pattern>%d{HH:mm:ss.SSS} [%t] [%highlight(%-5level)] [%cyan(%logger{10}.%M)][%L] |- %msg %n</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
         <level>INFO</level>

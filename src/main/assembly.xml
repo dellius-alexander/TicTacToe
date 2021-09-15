@@ -7,9 +7,11 @@
     </formats>
     <fileSets>
         <fileSet>
+        <!-- Project Build Directory -->
             <directory>${project.build.directory}</directory>
             <outputDirectory></outputDirectory>
-            <includes>
+            <includes> 
+            <!-- Project Package Name -->
                 <include>${project.build.finalName}.${project.packaging}</include>
             </includes>
         </fileSet>
