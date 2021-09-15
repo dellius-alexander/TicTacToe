@@ -289,7 +289,7 @@ public class Dijkstra{
                             {7, INF, INF, 2},    // 3
                             {5, 3, 2, INF}};     // 4
 
-                            
+                            // Test
         Dijkstra dj = new Dijkstra(graph,2);
 
     }
