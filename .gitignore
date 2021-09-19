@@ -1,8 +1,7 @@
-.*
-!.gitignore
-!.gitkeep
-!.mvn
-target/
-META-INF
-*.log
+*.idea
+out
+*.iml
 GameData.txt
+target/**
+.settings/
+.vscode/
