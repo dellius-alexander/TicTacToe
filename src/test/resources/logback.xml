@@ -56,9 +56,9 @@ ERROR 	YES 	  YES 	  YES 	YES 	YES 	  NO
           name="FIX_WINDOW_BASED_FILE"
           class="ch.qos.logback.core.rolling.RollingFileAppender"
   >
-    <file>${LOG_DIR}/tic_tac_toe_${dateTimeFormat}.log</file>
+    <file>${LOG_DIR}/tic_tac_toe_test_${dateTimeFormat}.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <fileNamePattern>${LOG_DIR}/tic_tac_toe_${dateTimeFormat}_%i.log</fileNamePattern>
+      <fileNamePattern>${LOG_DIR}/tic_tac_toe_test_${dateTimeFormat}_%i.log</fileNamePattern>
       <minIndex>1</minIndex>
       <maxIndex>5</maxIndex>
     </rollingPolicy>
@@ -83,10 +83,9 @@ ERROR 	YES 	  YES 	  YES 	YES 	YES 	  NO
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>[%highlight(%d{yyyy-MM-ddTHH:mm:ss.SSS})] [%t] [%highlight(%-5level)] [%cyan(%logger{0}.%M)][%L] |- %msg %n</pattern>
 <!--      <pattern>%msg %n</pattern>-->
-
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>WARN</level>
+      <level>INFO</level>
     </filter>
   </appender>
 
