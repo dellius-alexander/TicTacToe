@@ -1,0 +1,124 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+##########################################################################
+# This workflow will build a Java project with Gradle and
+# cache/restore any dependencies to improve the workflow execution time
+##########################################################################
+name: 'BUILD => TEST => PACKAGE => UPLOAD_ARTIFACT'
+env:
+
+  JAVA_HOME: '/__t/Java_Adopt_jdk/11.0.14-101/x64'
+  APP_MYSQL_USER: root
+on:
+  push:
+    branches:
+      - 'main'
+      - 'release*'
+      - '*'
+  pull_request:
+    branches:
+      - 'main'
+      - 'release*'
+      - '*'
+jobs:
+  Build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [tomcat:8-jdk11-temurin-jammy]
+    container:
+      image: tomcat:8-jdk11-temurin-jammy
+    steps:
+      - uses: actions/checkout@v2
+      - name: step 1 - Setup Build Environment
+        env:
+          MAVEN_VERSION: ${{ env.MAVEN_VERSION }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+        run: |
+          apt-get update
+          apt-get install -y mysql-client curl 
+          curl -fsSLo  /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz  \
+          https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+          tar xzvf /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz  -C  /opt/
+          echo "Maven Version: ${MAVEN_VERSION}"
+          export M2_HOME=/opt/apache-maven-${MAVEN_VERSION} 
+          export M2=/opt/apache-maven-${MAVEN_VERSION}/bin 
+          export PATH=/opt/apache-maven-${MAVEN_VERSION}/bin:$PATH 
+          export MAVEN_OPTS='-Xms256m -Xmx512m' 
+          ln -sf  "/opt/apache-maven-${MAVEN_VERSION}/bin/mvn" /usr/local/bin
+          mysql --help
+          java -version
+          whereis java
+          which java   
+          mvn -v
+          ip a
+          ifconfig
+          printenv
+  Test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [tomcat:8-jdk11-temurin-jammy]
+    container:
+      image: tomcat:8-jdk11-temurin-jammy
+    steps:
+      - uses: actions/checkout@v2
+      - name: step 1 - Setup Build Environment
+        env:
+          MAVEN_VERSION: ${{ env.MAVEN_VERSION }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+        run: |
+          apt-get update
+          apt-get install -y mysql-client curl 
+          curl -fsSLo  /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz  \
+          https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+          tar xzvf /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz  -C  /opt/
+          echo "Maven Version: ${MAVEN_VERSION}"
+          export M2_HOME=/opt/apache-maven-${MAVEN_VERSION} 
+          export M2=/opt/apache-maven-${MAVEN_VERSION}/bin 
+          export PATH=/opt/apache-maven-${MAVEN_VERSION}/bin:$PATH 
+          export MAVEN_OPTS='-Xms256m -Xmx512m' 
+          ln -sf  "/opt/apache-maven-${MAVEN_VERSION}/bin/mvn" /usr/local/bin
+          mysql --help
+          java -version
+          whereis java
+          which java   
+          mvn -v
+          ip a
+          ifconfig
+          printenv
+  Deploy:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ tomcat:8-jdk11-temurin-jammy ]
+    container:
+      image: tomcat:8-jdk11-temurin-jammy
+    steps:
+      - uses: actions/checkout@v2
+      - name: step 1 - Setup Build Environment
+        env:
+          MAVEN_VERSION: ${{ env.MAVEN_VERSION }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+        run: |
+          apt-get update
+          apt-get install -y mysql-client curl 
+          curl -fsSLo  /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz  \
+          https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+          tar xzvf /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz  -C  /opt/
+          echo "Maven Version: ${MAVEN_VERSION}"
+          export M2_HOME=/opt/apache-maven-${MAVEN_VERSION} 
+          export M2=/opt/apache-maven-${MAVEN_VERSION}/bin 
+          export PATH=/opt/apache-maven-${MAVEN_VERSION}/bin:$PATH 
+          export MAVEN_OPTS='-Xms256m -Xmx512m' 
+          ln -sf  "/opt/apache-maven-${MAVEN_VERSION}/bin/mvn" /usr/local/bin
+          mysql --help
+          java -version
+          whereis java
+          which java   
+          mvn -v
+          ip a
+          ifconfig
+          printenv
