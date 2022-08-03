@@ -58,7 +58,6 @@ jobs:
           whereis java
           which java   
           mvn -v
-          ifconfig
           printenv
       - name: step 3 - Building our Maven Project
         run: |
@@ -108,7 +107,6 @@ jobs:
           whereis java
           which java   
           mvn -v
-          ifconfig
           printenv
   Deploy:
     needs:
@@ -143,5 +141,4 @@ jobs:
           whereis java
           which java   
           mvn -v
-          ifconfig
           printenv
