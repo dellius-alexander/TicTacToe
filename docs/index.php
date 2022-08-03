@@ -11,7 +11,7 @@
 
 <?php
 
-    echo "<h1>Minimax Algorithm</h1><br/>";
+    echo "<h1>Minimax Algorithm Alpha Beta Pruning</h1><br/>";
 
 ?>
 
