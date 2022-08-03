@@ -26,7 +26,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [tomcat:8-jdk11-temurin-jammy]
+        os: [ubuntu-latest]
     container:
       image: tomcat:8-jdk11-temurin-jammy
     steps:
