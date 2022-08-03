@@ -9,7 +9,7 @@ A dockerized Java standalone application with Maven build. The TicTacToe impleme
 
 ## Checkout Minimax algorithm
 
-[Minimax Algorithm](index.php "Minimax Algorithm")
+[Minimax Algorithm](https://dellius-alexander.github.io/TicTacToe/index.php "Minimax Algorithm")
 
 
 ---
