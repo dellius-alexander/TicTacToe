@@ -414,7 +414,7 @@ public class Minimax implements Serializable {
                                 currentScore,
                                 availableCells.size(),
                                 i,
-                                beta,
+                                alpha,
                                 depth
                         );
                     }
@@ -498,7 +498,7 @@ public class Minimax implements Serializable {
         Board bd = new Board(new Object[][]{
                 {"","",""},
                 {"","",""},
-                {"","O",""}
+                {"O","",""}
         });
         bd.setLastMove(new Point(2,1, bd.getBoardSize()));
 
@@ -519,7 +519,7 @@ public class Minimax implements Serializable {
                     0,
                     turn,
                     bd,
-                    -1,
+                    Integer.MIN_VALUE,
                     0
 
             );

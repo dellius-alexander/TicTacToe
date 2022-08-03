@@ -6,10 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import com.hyfi.tictactoe.Board;
 import com.hyfi.tictactoe.Minimax;
@@ -124,6 +121,7 @@ public class FXMLBoardController implements Serializable {
             isGameStarted = false;
             // set no as cancel button
             no.setCancelButton(true);
+
             // check if any of out UI objects are null and throw message
             assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'GridBoardView.fxml'.";
             assert dialog != null : "fx:id=\"dialog\" was not injected: check your FXML file 'GridBoardView.fxml'.";
@@ -140,6 +138,8 @@ public class FXMLBoardController implements Serializable {
             assert imageView8 != null : "fx:id=\"imageView8\" was not injected: check your FXML file 'GridBoardView.fxml'.";
             assert no != null : "fx:id=\"no\" was not injected: check your FXML file 'GridBoardView.fxml'.";
             assert yes != null : "fx:id=\"yes\" was not injected: check your FXML file 'GridBoardView.fxml'.";
+
+
             // add all objects to our Map
             fxmlPL.put("borderPane", borderPane);
             fxmlPL.put("dialog", dialog);
@@ -209,6 +209,7 @@ public class FXMLBoardController implements Serializable {
     @FXML
     private void handleButtonAction(MouseEvent event) throws InterruptedException, FileNotFoundException {
 
+        // process terminal restart events
         if (!isGameStarted && isGameOver){
 
             if (event.getSource() instanceof AnchorPane){
@@ -238,8 +239,8 @@ public class FXMLBoardController implements Serializable {
                     borderPane.getTop().setVisible(false);
                     borderPane.getTop().resizeRelocate(-1,-1,-1,-1);
                     borderPane.getCenter().setVisible(true);
-                    borderPane.getCenter().resizeRelocate(0,0,850,850);
-                    gridPane.resizeRelocate(0,0,850,850);
+                    borderPane.getCenter().resizeRelocate(0,0,Integer.MAX_VALUE,Integer.MAX_VALUE);
+                    gridPane.resizeRelocate(0,0,Integer.MAX_VALUE,Integer.MAX_VALUE);
                     gridPane.setBackground(
                             new Background(
                                     new BackgroundFill(
@@ -253,7 +254,7 @@ public class FXMLBoardController implements Serializable {
                 }
             }
         }
-
+        // process game play events
         if (isGameStarted && !isGameOver && event.getSource() instanceof ImageView)
         {
             ImageView imageView = (ImageView) event.getSource();
@@ -271,7 +272,7 @@ public class FXMLBoardController implements Serializable {
                 System.out.printf("\nWaiting for image to load.........");
             }
             System.out.printf("\n%s load completed......", imageView.getId());
-
+            // check for user win
             if(board.hasPlayerWon(user))
             {
                 Thread.sleep(3000L);
@@ -279,33 +280,7 @@ public class FXMLBoardController implements Serializable {
                         "\n\nWould you like to play again......\n\n%s",
                         user, board.displayBoard(board.getGameBoard()));
                 System.out.printf("\n%s",winMsg);
-                dialog.setText(winMsg);
-                board.clearBoard();
-                board = new Board(board);
-                minimax = new Minimax(board);
-                isGameOver = true;
-                isGameStarted = false;
-
-                dialog.setVisible(true);
-                yes.setVisible(true);
-                no.setVisible(true);
-                dialogBox.setVisible(true);
-
-                dialog.resizeRelocate(300,10, 300, 200);
-                yes.resizeRelocate(275,400, 10, 10);
-                no.resizeRelocate(640, 400, 10, 10);
-                dialogBox.resizeRelocate(0, 0, Integer.MAX_VALUE,Integer.MAX_VALUE);
-                gridPane.resizeRelocate(-1,-1,Integer.MIN_VALUE, Integer.MIN_VALUE);
-
-                borderPane.getTop().setVisible(true);
-                borderPane.getTop().resizeRelocate(0, 0, 850,850);
-                borderPane.getCenter().setVisible(false);
-                borderPane.getCenter().resizeRelocate(-1,-1,Integer.MIN_VALUE, Integer.MIN_VALUE);
-
-                for ( ImageView iv : (ImageView[]) fxmlPL.get("imageViews")){
-                    iv.setImage(null);
-                }
-
+                terminalMsg(winMsg);
                 return;
             }
             else if (board.getAvailableCells().isEmpty()){
@@ -314,33 +289,7 @@ public class FXMLBoardController implements Serializable {
                                 "\n\nWould you like to play again......\n\n%s",
                         board.displayBoard(board.getGameBoard()));
                 System.out.printf("\n%s",winMsg);
-                dialog.setText(winMsg);
-                board.clearBoard();
-                board = new Board(board);
-                minimax = new Minimax(board);
-                isGameOver = true;
-                isGameStarted = false;
-
-                dialog.setVisible(true);
-                yes.setVisible(true);
-                no.setVisible(true);
-                dialogBox.setVisible(true);
-
-                dialog.resizeRelocate(300,10, 300, 200);
-                yes.resizeRelocate(275,400, 10, 10);
-                no.resizeRelocate(640, 400, 10, 10);
-                dialogBox.resizeRelocate(0, 0, Integer.MAX_VALUE,Integer.MAX_VALUE);
-                gridPane.resizeRelocate(-1,-1,Integer.MIN_VALUE, Integer.MIN_VALUE);
-
-                borderPane.getTop().setVisible(true);
-                borderPane.getTop().resizeRelocate(0, 0, 850,850);
-                borderPane.getCenter().setVisible(false);
-                borderPane.getCenter().resizeRelocate(-1,-1,Integer.MIN_VALUE, Integer.MIN_VALUE);
-
-                for ( ImageView iv : (ImageView[]) fxmlPL.get("imageViews")){
-                    iv.setImage(null);
-                }
-
+                terminalMsg(winMsg);
                 return;
             } else {
                 // switch to opponent
@@ -367,6 +316,7 @@ public class FXMLBoardController implements Serializable {
                 }
                 System.out.printf("\n%s load completed......", imageView.getId());
             }
+            // check for opponent win
             if(board.hasPlayerWon(opponent))
             {
                 Thread.sleep(3000L);
@@ -374,32 +324,7 @@ public class FXMLBoardController implements Serializable {
                         "\n\nWould you like to play again......\n\n%s",
                         opponent, board.displayBoard(board.getGameBoard()));
                 System.out.printf("\n%s",winMsg);
-                dialog.setText(winMsg);
-                board.clearBoard();
-                board = new Board(board);
-                minimax = new Minimax(board);
-                isGameOver = true;
-                isGameStarted = false;
-
-                dialog.setVisible(true);
-                yes.setVisible(true);
-                no.setVisible(true);
-                dialogBox.setVisible(true);
-
-                dialog.resizeRelocate(300,10, 300, 200);
-                yes.resizeRelocate(275,400, 10, 10);
-                no.resizeRelocate(640, 400, 10, 10);
-                dialogBox.resizeRelocate(0, 0, Integer.MAX_VALUE,Integer.MAX_VALUE);
-                gridPane.resizeRelocate(-1,-1,Integer.MIN_VALUE, Integer.MIN_VALUE);
-
-                borderPane.getTop().setVisible(true);
-                borderPane.getTop().resizeRelocate(0, 0, 850,850);
-                borderPane.getCenter().setVisible(false);
-                borderPane.getCenter().resizeRelocate(-1,-1,Integer.MIN_VALUE, Integer.MIN_VALUE);
-
-                for ( ImageView iv : (ImageView[]) fxmlPL.get("imageViews")){
-                    iv.setImage(null);
-                }
+                terminalMsg(winMsg);
                 return;
             }
             else if (board.getAvailableCells().isEmpty()){
@@ -408,117 +333,122 @@ public class FXMLBoardController implements Serializable {
                                 "\n\nWould you like to play again......\n\n%s",
                         board.displayBoard(board.getGameBoard()));
                 System.out.printf("\n%s",winMsg);
-                dialog.setText(winMsg);
-                board.clearBoard();
-                board = new Board(board);
-                minimax = new Minimax(board);
-                isGameOver = true;
-                isGameStarted = false;
-
-                dialog.setVisible(true);
-                yes.setVisible(true);
-                no.setVisible(true);
-                dialogBox.setVisible(true);
-
-                dialog.resizeRelocate(300,10, 300, 200);
-                yes.resizeRelocate(275,400, 10, 10);
-                no.resizeRelocate(640, 400, 10, 10);
-                dialogBox.resizeRelocate(0, 0, Integer.MAX_VALUE,Integer.MAX_VALUE);
-                gridPane.resizeRelocate(-1,-1,Integer.MIN_VALUE, Integer.MIN_VALUE);
-
-                borderPane.getTop().setVisible(true);
-                borderPane.getTop().resizeRelocate(0, 0, 850,850);
-                borderPane.getCenter().setVisible(false);
-                borderPane.getCenter().resizeRelocate(-1,-1,Integer.MIN_VALUE, Integer.MIN_VALUE);
-
-                for ( ImageView iv : (ImageView[]) fxmlPL.get("imageViews")){
-                    iv.setImage(null);
-                }
-
+                terminalMsg(winMsg);
                 return;
             }
-
-
         }
-
-
-
     }
 
-public void setupPlayerToken() throws FileNotFoundException {
-    if ( (rand.nextInt(3) % 2 == 0) ){
-        opponent = "X";
-        oppImg = new Image(new FileInputStream(
-                "/Users/dalexander/SynologyDrive/Repos/TicTacToe/target/classes/images/xs.png"));
-        user = "O";
-        userImg = new Image(new FileInputStream(
-                "/Users/dalexander/SynologyDrive/Repos/TicTacToe/target/classes/images/os.png"));
-        board.setComputerMark(opponent);
-        board.setHumanMark(user);
-        System.out.printf("\nInitializing completed.\n%s loaded: %s | %s loaded: %s",
-                user, userImg.getProgress(), opponent, oppImg.getProgress());
+    /**
+     * Process terminal events.
+     * @param msg
+     * @return true upon completion
+     */
+    public boolean terminalMsg(String msg)
+    {
+        dialog.setText(msg);
+        board.clearBoard();
+        board = new Board(board);
+        minimax = new Minimax(board);
+        isGameOver = true;
+        isGameStarted = false;
 
-        int sub = rand.nextInt( (int) Math.pow(board.getBoardSize(),2) + 1);
-        if (sub % 2 == 0)
-        { // place the first move
-            sub = sub - 1;
-            Point p = new Point(board.getRow(sub),board.getCol(sub), board.getBoardSize());
-            board.placeAMove(p,opponent);
-            ImageView iv = (ImageView) fxmlPL.get("imageView"+ p.getSub());
-            iv.setImage(oppImg);
-            System.out.printf("\nGame Board: %s",board.displayBoard(board.getGameBoard()));
+        dialog.setVisible(true);
+        yes.setVisible(true);
+        no.setVisible(true);
+        dialogBox.setVisible(true);
+
+        dialog.resizeRelocate(300,10, 300, 200);
+        yes.resizeRelocate(275,400, 10, 10);
+        no.resizeRelocate(640, 400, 10, 10);
+        dialogBox.resizeRelocate(0, 0, Integer.MAX_VALUE,Integer.MAX_VALUE);
+        gridPane.resizeRelocate(-1,-1,Integer.MIN_VALUE, Integer.MIN_VALUE);
+
+        borderPane.getTop().setVisible(true);
+        borderPane.getTop().resizeRelocate(0, 0, 850,850);
+        borderPane.getCenter().setVisible(false);
+        borderPane.getCenter().resizeRelocate(-1,-1,Integer.MIN_VALUE, Integer.MIN_VALUE);
+
+        for ( ImageView iv : (ImageView[]) fxmlPL.get("imageViews")){
+            iv.setImage(null);
         }
-    } else {
-        opponent = "O";
-        oppImg = new Image(new FileInputStream(
-                "/Users/dalexander/SynologyDrive/Repos/TicTacToe/target/classes/images/os.png"));
-        user = "X";
-        userImg = new Image(new FileInputStream(
-                "/Users/dalexander/SynologyDrive/Repos/TicTacToe/target/classes/images/xs.png"));
-        board.setComputerMark(opponent);
-        board.setHumanMark(user);
-        System.out.printf("\nInitializing completed.\n%s loaded: %s | %s loaded: %s",
-                user, userImg.getProgress(), opponent, oppImg.getProgress());
+        return true;
     }
-}
 
-    public Object setConfig(Object node, int X, int Y){
+    public void setupPlayerToken() throws FileNotFoundException {
+        if ( (rand.nextInt(3) % 2 == 0) ){
+            opponent = "X";
+            oppImg = new Image(new FileInputStream(
+                    "/Users/dalexander/SynologyDrive/Repos/TicTacToe/target/classes/images/xs.png"));
+            user = "O";
+            userImg = new Image(new FileInputStream(
+                    "/Users/dalexander/SynologyDrive/Repos/TicTacToe/target/classes/images/os.png"));
+            board.setComputerMark(opponent);
+            board.setHumanMark(user);
+            System.out.printf("\nInitializing completed.\n%s loaded: %s | %s loaded: %s",
+                    user, userImg.getProgress(), opponent, oppImg.getProgress());
 
-        if (node instanceof Text)
-        {
-            Text n = (Text)node;
-            n.setX(X);
-            n.setY(Y);
-            n.setTextOrigin(VPos.CENTER);
-            n.setTextAlignment(TextAlignment.JUSTIFY);
-            n.setWrappingWidth(50);
-            n.setFill(Color.BLACK);
-            n.setFont(Font.font("Times New Roman", FontWeight.BOLD, 18));
-            return n;
+            int sub = rand.nextInt( (int) Math.pow(board.getBoardSize(),2) + 1);
+            if (sub % 2 == 0)
+            { // place the first move
+                sub = sub - 1;
+                Point p = new Point(board.getRow(sub),board.getCol(sub), board.getBoardSize());
+                board.placeAMove(p,opponent);
+                ImageView iv = (ImageView) fxmlPL.get("imageView"+ p.getSub());
+                iv.setImage(oppImg);
+                System.out.printf("\nGame Board: %s",board.displayBoard(board.getGameBoard()));
+            }
+        } else {
+            opponent = "O";
+            oppImg = new Image(new FileInputStream(
+                    "/Users/dalexander/SynologyDrive/Repos/TicTacToe/target/classes/images/os.png"));
+            user = "X";
+            userImg = new Image(new FileInputStream(
+                    "/Users/dalexander/SynologyDrive/Repos/TicTacToe/target/classes/images/xs.png"));
+            board.setComputerMark(opponent);
+            board.setHumanMark(user);
+            System.out.printf("\nInitializing completed.\n%s loaded: %s | %s loaded: %s",
+                    user, userImg.getProgress(), opponent, oppImg.getProgress());
         }
-        else if (node instanceof Label)
-        {
-            Label n = (Label) node;
-            n.setLayoutX(X);
-            n.setLayoutY(Y);
-            n.setAlignment(Pos.CENTER);
-            n.setWrapText(true);
-            n.setTextFill(Color.BLACK);
-            n.setFont(Font.font("Times New Roman", FontWeight.BOLD, 18));
-            return n;
-        }
-        else if (node instanceof Button)
-        {
-            Button b = (Button) node;
-//            b.setLayoutX(X);
-//            b.setLayoutY(Y);
-            b.setAlignment(Pos.CENTER);
-            b.setWrapText(true);
-            b.setTextFill(Color.ROYALBLUE);
-            b.setFont(Font.font("Times New Roman", FontWeight.BOLD, 18));
-            return b;
-
-        }
-        return null;
     }
+
+//    public Object setConfig(Object node, int X, int Y){
+//
+//        if (node instanceof Text)
+//        {
+//            Text n = (Text)node;
+//            n.setX(X);
+//            n.setY(Y);
+//            n.setTextOrigin(VPos.CENTER);
+//            n.setTextAlignment(TextAlignment.JUSTIFY);
+//            n.setWrappingWidth(50);
+//            n.setFill(Color.BLACK);
+//            n.setFont(Font.font("Times New Roman", FontWeight.BOLD, 18));
+//            return n;
+//        }
+//        else if (node instanceof Label)
+//        {
+//            Label n = (Label) node;
+//            n.setLayoutX(X);
+//            n.setLayoutY(Y);
+//            n.setAlignment(Pos.CENTER);
+//            n.setWrapText(true);
+//            n.setTextFill(Color.BLACK);
+//            n.setFont(Font.font("Times New Roman", FontWeight.BOLD, 18));
+//            return n;
+//        }
+//        else if (node instanceof Button)
+//        {
+//            Button b = (Button) node;
+////            b.setLayoutX(X);
+////            b.setLayoutY(Y);
+//            b.setAlignment(Pos.CENTER);
+//            b.setWrapText(true);
+//            b.setTextFill(Color.ROYALBLUE);
+//            b.setFont(Font.font("Times New Roman", FontWeight.BOLD, 18));
+//            return b;
+//
+//        }
+//        return null;
+//    }
 }

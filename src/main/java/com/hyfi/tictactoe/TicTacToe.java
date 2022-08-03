@@ -234,9 +234,9 @@ public class TicTacToe {
 //                board,
 //                board.getComputerMark()
 //        );
-        Point point = board.getComputerMoves().get(move);
-        System.out.printf("\nBest Results: \"%s\", Computer Moves: %s\n",
-                move, board.getComputerMoves());
+        Point point = mini.getBestmoves().get(move);
+        System.out.printf("\nBest Results: \"%s\", Best Computer Moves: %s\n",
+                move, mini.getBestmoves());
 //        System.out.printf("\nComputer Moves: %s\n", board.getComputerMoves());
         System.out.printf("\nMY TURN, \n\tI marked %s at Point: %s",
                 computersMark, point);
