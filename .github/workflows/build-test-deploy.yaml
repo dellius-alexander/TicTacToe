@@ -56,6 +56,8 @@ jobs:
           ifconfig
           printenv
   Test:
+    needs:
+      - Build
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -89,6 +91,9 @@ jobs:
           ifconfig
           printenv
   Deploy:
+    needs:
+      - Build
+      - Test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
