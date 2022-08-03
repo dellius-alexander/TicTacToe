@@ -4,15 +4,16 @@ import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+
 @Data
 /**
  * The Point class stores and represents the points (row and column) of a single cell to be played on the game board during game play.
  * @version 2.2
  * @since 2019-04-12
  */
-public class Point {
-    private static final Logger logger = LoggerFactory.getLogger(Point.class);
-
+public class Point implements Serializable {
+    private static final Logger log = LoggerFactory.getLogger(Point.class);
     // The row, column and subscript of each cell.
     private int row;
     private int col;
@@ -26,44 +27,60 @@ public class Point {
      */
     public Point() {
         // Log a simple INFO message.
-        logger.info("Constructor init...");
+        log.info("\nConstructor init...");
     }
+
     /**
+     * Create a new point from an existing point and board size.
+     * @param point {@linkplain Point}
+     * @param boardSize the board size
+     */
+    public Point(Point point, int boardSize) {
+        this.setRoot(boardSize);
+        this.setRow(point.getRow());
+        this.setCol(point.getCol());
+        this.setSub(point.getSub());
+        this.setBoardSize(boardSize);
+        this.setComputerMove(point);
+
+        log.info("\nConstructor init...");
+    }
+     /**
      * The subscript of the current Point
      * @param s the subscript of the Point
+     * @param boardSize
      */
     public Point(int s,int boardSize) {
         // Log a simple INFO message.
-
-        this.root = (int) Math.sqrt(boardSize);
-        logger.info("\nConstructor init...\nSub: {} | Root: {}",s,root);
-        this.row =  (s / this.root );
-        this.col =  (s % this.root);
-        this.sub = s;
-        logger.info("\nSubscript: "+s+" | Row: "+this.row+" | Column: "+this.col);
+        this.setRoot(boardSize);
+        log.info("\nConstructor init...\nSub: {} | Root: {}",s,root);
+        this.setRow((s / this.root ));
+        this.setCol((s % this.root));
+        this.setSub(s);
+        this.setBoardSize(boardSize);
+        log.info("\nSubscript: {} | Row: {} | Column: {} ",s,getRow(),getCol());
         computerMove = new Point(row,col,boardSize);
     }
-
      /**
      * The row and column of the current Point
      * integer value. Default board size is 9.
      * @param r the row of the Point
      * @param c the column of the point
+     * @param boardSize
      */
     public Point(int r, int c, int boardSize) {
-        this.row = r;
-        this.col = c;
-        this.root = (int) Math.sqrt(boardSize);
-        this.boardSize=boardSize;
-        this.sub = (this.row * this.root + (this.col));
-        logger.info("Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
+        this.setRoot(boardSize);
+        this.setRow(r);
+        this.setCol(c);
+        this.setSub((this.row * this.root + (this.col)));
+        this.setBoardSize(boardSize);
+        log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
     }
     /**
      * Sets the board size
      * @param size the size of the game board
      */
     public void setBoardSize(int size){
-
         this.boardSize = size;
     }
     /**
@@ -72,7 +89,13 @@ public class Point {
      */
     public void setBoardSize(Object[][] gameBoard){
         this.boardSize = gameBoard.length;
+        this.setRoot(this.boardSize);
     }
+
+    public int getBoardSize() {
+        return boardSize;
+    }
+
     /**
      * Sets the row and column values from the subscript
      * @param sub the subscript of the Point
@@ -80,8 +103,10 @@ public class Point {
     public void setPoints(int sub) {
         this.row = (sub / this.root);
         this.col = (sub % this.root);
-        logger.info("Subscript: "+sub+" | Row: "+this.row+" | Column: "+this.col);
+        log.info("\nSubscript: "+sub+" | Row: "+this.row+" | Column: "+this.col);
     }
+
+
     /**
      * The toString method returns a string representation of the object
      * row and column.
@@ -89,15 +114,20 @@ public class Point {
      */
     @Override
     public String toString() {
-        logger.info("Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
+        log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return "['" + this.row + "', '" + this.col + "']";
     }
+
+    public void setRow(int row) {
+        this.row = row;
+    }
+
     /**
      * The getRow method returns the value of the row.
      * @return	The value of the row.
      */
     public int getRow() {
-        logger.info("Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
+        log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return this.row;
     }
     /**
@@ -110,15 +140,20 @@ public class Point {
         this.sub = s;
         this.row = (s / this.root);
         this.col = (s % this.root);
-        logger.info("Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
+        log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return this.row;
     }
+
+    public void setCol(int col) {
+        this.col = col;
+    }
+
     /**
      * The getCol method returns the value of the column.
      * @return	The value of the column.
      */
     public int getCol() {
-        logger.info("Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
+        log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return col;
     }
     /**
@@ -132,17 +167,23 @@ public class Point {
         this.row = (s / this.root);
         this.col = (s % this.root);
 
-        logger.info("Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
+        log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return this.col;
     }
+
+    public void setSub(int sub) {
+        this.sub = sub;
+    }
+
     /**
      * The getSub method returns the subscript reference to a cell.
      * @return		The subscript reference.
      */
     public int getSub() {
         // this.sub = (int) ((this.row) * (Math.sqrt(boardSize)) + (this.col));
-        logger.info("Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
-        return this.sub;
+        log.info("\nSubscript: {} | BoardSize: {} | Row: {} | Column: {}",this.sub,this.root,this.row,this.col);
+        return (sub == (((this.row) * (this.root) + (this.col))) ? sub : ((this.row) * (this.root) + (this.col)) );
+
     }
     /**
      * The getSub method accepts the row and column and
@@ -155,7 +196,7 @@ public class Point {
         this.row = row;
         this.col = col;
         this.sub =  ((this.row) * (this.root) + (this.col));
-        logger.info("Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
+        log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return this.sub;
     }
     /**
@@ -165,7 +206,7 @@ public class Point {
      * @return	The object representing row and column
      */
     public Point getComputerMove() {
-        logger.info("Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
+        log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return computerMove;
     }
     /**
@@ -176,7 +217,7 @@ public class Point {
      */
     public void setComputerMove(Point computerPoint) {
         this.computerMove = computerPoint;
-        logger.info("Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
+        log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
     }
         /**
      * The setComputerMove method accepts a point object
@@ -190,7 +231,7 @@ public class Point {
         this.col = col;
         this.sub = ((this.row) * (this.root) + (this.col));
         this.computerMove = new Point(row, col,boardSize);
-        logger.info("Subscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
+        log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
     }
 
     // /**

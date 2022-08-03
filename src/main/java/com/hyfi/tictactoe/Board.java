@@ -1,26 +1,25 @@
 package com.hyfi.tictactoe;
-// Imports
-import lombok.Data;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.*;
+
+import java.io.Serializable;
+import java.util.*;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
-@Data
 /**
- * The Board class represents the game board in a Tic Tac Toe game. This class also contains a AI method using the MiniMax algorithm, so the computer can determine the best possible move to secure a winning state or draw during game play.
+ * The Board class represents the game board in a Tic Tac Toe game. This
+ * class also contains AI method using the MiniMax algorithm, so the
+ * computer can determine the best possible move to secure a winning state
+ * or draw during game play.
  * @version 2.2
  * @since 2019-04-12
  */
-public class Board {
+public class Board implements Serializable {
     private static final Logger log = LoggerFactory.getLogger(Board.class);
-//    private GameBoardView view = new GameBoardView();
-//    private FXMLBoardController controller = new FXMLBoardController();
     // Constant to represent a blank cell on the game board.
-    private static final Object NO_PLAYER = ' ';
+    private static final Object NO_PLAYER = "";
     // Holds the value of the current computer mark (X/0).
     private Object computerMark;
     // Holds the value of the current human mark (X/0).
@@ -28,76 +27,186 @@ public class Board {
     // Represents the game board of Object type.
     private Object[][] gameBoard;
     // Holds the value of "row and column" reference to computer move.
-    private Point computerMove;
+    private Map<Integer, Point> computerMoves;
     // Holds the value of the current round at play
-    private int round;
+    private int round = '\u0000';
     // Holds the value of the score returned from a simulated
     // iteration of game play at current depth
-    private int computerScore;
-    private int humanScore;
+    private int computerScore = '\u0000';
+    private int humanScore = '\u0000';
     // The value of current depth
-    private int depth;
+    private int depth = '\u0000';;
     // holds the size of the board
     private int boardSize;
     // holds the last move played
-    private List<Point> lastMove = new ArrayList<Point>();
-
+//    private Map<Integer, Point> lastMoves;
+    private Queue<Point> lastMoves;
 
     /**
      * The Board method is the Default constructor. Default board size is 9;
      */
     public Board() {
-        log.info("Default constructor...");
-//        Application.launch(GameBoardView.class);
-//        try{
-//            view.init();
-//        } catch (Exception e){
-//            log.error(e.getLocalizedMessage());
-//            e.printStackTrace();
-//        }
-//        this.gameBoard = setupGameBrd(new Object[3][3]);
-        this.gameBoard = new Object[3][3];
-        this.boardSize = this.gameBoard.length;
+        log.info("\nDefault constructor...");
+        this.lastMoves = new ArrayDeque<>();
+        this.gameBoard = setupGameBrd(new Object[3][3]);
+        this.boardSize = 0;
+        this.computerMoves = new HashMap<>();
+        this.humanMark = null;
+        this.computerMark = null;
+        this.computerScore = '\u0000';
+        this.humanScore ='\u0000';
+        this.depth = '\u0000';
+        this.round = '\u0000';
     }
+
     /**
      * Constructor accepts game board
      * @param gameBoard the game board passed to a new instance of Board
      */
     public Board(Object[][] gameBoard) {
-//        Application.launch(GameBoardView.class);
-//        try{
-//            view.init();
-//        } catch (Exception e){
-//            log.error(e.getLocalizedMessage());
-//            e.printStackTrace();
-//        }
-
-        this.gameBoard = gameBoard;
-        this.boardSize = this.gameBoard.length;
-        log.info("Parameterized constructor...");
+        try{
+            this.lastMoves = new ArrayDeque<>();
+            this.gameBoard = setupGameBrd(gameBoard);
+            this.boardSize = this.gameBoard.length;
+            this.computerMoves = new HashMap<>();
+            this.humanMark = null;
+            this.computerMark = null;
+            this.computerScore = '\u0000';
+            this.humanScore ='\u0000';
+            this.depth = '\u0000';
+            this.round = '\u0000';
+            log.info("\nParameterized constructor...");
+        } catch (Exception e){
+            log.error(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
     }
+    public Board(String[][] gameBoard){
+        try {
+            this.lastMoves = new ArrayDeque<>();
+            this.gameBoard = setupGameBrd(gameBoard);
+            this.boardSize = gameBoard.length;
+            this.computerMoves = new HashMap<>();
+            this.humanMark = null;
+            this.computerMark = null;
+            this.computerScore = '\u0000';
+            this.humanScore ='\u0000';
+            this.depth = '\u0000';
+            this.round = '\u0000';
+            log.info("\nParameterized constructor...");
+        } catch (Exception e){
+            log.error(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+    public Board(Board b){
+        try {
+            this.lastMoves = new ArrayDeque<>();
+            this.gameBoard = b.clone();
+            this.boardSize = b.getBoardSize();
+            this.computerMoves = new HashMap<>();
+            this.computerMark = b.getComputerMark() != null ? b.getComputerMark() : "";
+            this.humanMark = b.getHumanMark() != null ? b.getHumanMark() : "";
+            this.computerScore = '\u0000';
+            this.humanScore = '\u0000';
+            this.depth = '\u0000';
+            this.round = '\u0000';
+            log.info("\nNew board initialized...");
+        } catch (Exception e){
+            log.error(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Clone the game board.
+     * @return {@linkplain  Object[][]}
+     */
+    @Override
+    public synchronized Object[][] clone() throws CloneNotSupportedException {
+
+        Object[][] b = new Object[boardSize][boardSize];
+        for (int i = 0; i < boardSize; i++) {
+            for (int j = 0; j < boardSize; j++) {
+                b[i][j] = gameBoard[i][j];
+            }
+        }
+        return b;
+    }
+
+
+
+//    public synchronized Board setNext(Board next){
+//        this.listLength++;
+//        return this.next = next; }
+//    public synchronized Board getNext(){
+//        Board temp = this.next;
+//        return temp;}
+//    public synchronized Board setPrevious(Board previous){
+//        return this.previous = previous; }
+//    public synchronized Board getPrevious(){
+//        Board temp = this.previous;
+//        return temp;}
+    public Board getBoard(){return this;}
+    public int getHumanScore() { return humanScore; }
+    public Queue<Point>  getLastMoves(){return this.lastMoves;}
+    public void setLastMoves(Queue<Point> lastMoves) { this.lastMoves = lastMoves; }
+//    public int getLength(){
+//        Board temp = this.getPrevious() == null ? null : this.getPrevious();
+//        while (temp != null){
+//            temp = temp.getPrevious();
+//            this.listLength++;
+//        }
+//        temp = this.getNext() == null ? null : this.getNext();
+//        while (temp != null){
+//            this.listLength++;
+//            temp = temp.getNext();
+//        }
+//
+//        return this.listLength;
+//    }
     /**
      * Adds the last move played to a list of previous moves
      * @param point the point played last
      */
     public void setLastMove(Point point)
     {
-        this.lastMove.add(point);
+        this.lastMoves.add( point);
     }
+    /**
+     * Adds the last move played to a list of previous moves
+     * @param point the point played last
+     */
+    public void setLastMove(Integer key, Point point)
+    {
+        this.lastMoves.add(point);
+    }
+
+
+
     /**
      * Gets a list of privious played moves
      * @return the list of last moves
      */
-    public List<Point> getLastMove()
+    public Point getLastMove()
     {
-        return this.lastMove;
+        return this.lastMoves.poll();
     }
+
     /**
-     * Sets the board size
+     * Removes the last move
      */
-    public void setBoardSize(){
-        this.boardSize = this.gameBoard.length;
+    public void removeLastMove(){
+        this.lastMoves.remove(this.lastMoves.size() - 1);
     }
+
+//    /**
+//     * Sets the board size
+//     */
+//    public void setBoardSize(){
+//        this.boardSize = this.gameBoard.length;
+//    }
+
     /**
      * Sets the board size
      * @param size the board size
@@ -140,7 +249,7 @@ public class Board {
     /**
      * The setScore method assigns the score evaluated
      * at the end of each iteration simulation
-     * @param score the value returnd from a win/lose/draw
+     * @param score the value returned from a win(1)/lose(-1)/draw(0)
      */
     public void setComputerScore(int score) {
         this.computerScore = score;
@@ -235,7 +344,7 @@ public class Board {
      * @return		The index value of the cell on the board.
      */
     public int getSub(int row, int col)	{
-        return (int) ((row) * (boardSize/Math.sqrt(boardSize)) + (col));
+        return (int) ((row) * (boardSize) + (col));
     }
     /**
      * The getRow method accepts the value for the subscript
@@ -244,7 +353,7 @@ public class Board {
      * @return		The value of the row.
      */
     public int getRow(int sub) {
-        return (int) (sub / Math.sqrt(this.boardSize));
+        return (sub / this.boardSize);
     }
     /**
      * The getCol method accepts the value of the subscript
@@ -253,46 +362,161 @@ public class Board {
      * @return		The value of the column.
      */
     public int getCol(int sub) {
-        return (int) (sub % Math.sqrt(this.boardSize));
+
+        return  (sub % this.boardSize);
     }
+    /**
+     * Get the best entry.
+     * @return	{@link Map.Entry<Integer,Point>}
+     */
+    public Map.Entry<Integer,Point> getBestEntry(int key) {
+        log.info("\nContainer size: {}", this.computerMoves.size());
+        Point point = null; // container for the best move
+        try {
+            int ittr = 0;
+            // iterate through each entry saved to computer moves to find the best move
+            for (Map.Entry<Integer, Point> entry : this.computerMoves.entrySet()) {
+                if (placeAMove(entry.getValue(), computerMark)) {
+                    if (hasPlayerWon(computerMark)) {
+                        gameBoard[entry.getValue().getRow()][entry.getValue().getCol()] = NO_PLAYER;
+                        return entry;
+                    }
+                    gameBoard[entry.getValue().getRow()][entry.getValue().getCol()] = NO_PLAYER;
+                }
+            }
+            for (Map.Entry<Integer, Point> entry : this.computerMoves.entrySet()) {
+                if (placeAMove(entry.getValue(), humanMark)) {
+                    if (hasPlayerWon(humanMark)) {
+                        gameBoard[entry.getValue().getRow()][entry.getValue().getCol()] = NO_PLAYER;
+                        return entry;
+                    }
+                    gameBoard[entry.getValue().getRow()][entry.getValue().getCol()] = NO_PLAYER;
+                }
+            }
+
+            for (Map.Entry<Integer, Point> entry : this.computerMoves.entrySet()) {
+                if (entry.getKey() != null && entry.getKey() == 0) {
+                    gameBoard[entry.getValue().getRow()][entry.getValue().getCol()] = NO_PLAYER;
+                    return entry;
+                }
+            }
+
+        } catch (NullPointerException e){
+            log.error(e.getLocalizedMessage());
+            e.printStackTrace();
+        } // default entry
+        final Point[] p = {this.computerMoves.get(key)};
+        return new Map.Entry<Integer, Point>() {
+            @Override
+            public Integer getKey() {
+                return key;
+            }
+
+            @Override
+            public Point getValue() {
+                return p[0];
+            }
+
+            @Override
+            public Point setValue(Point value) {
+                return p[0] = value;
+            }
+        };
+    }
+
     /**
      * The getComputerMove returns the row and column
      * value of the subscript value for the computer
      * move when called.
      * @return	The object representing row and column
      */
-    public Point getComputerMove() {
-        return computerMove;
+    public Map.Entry<Integer, Point> getBestMove() {
+        log.info("\nContainer size: {}", this.computerMoves.size());
+        try {
+            // iterate through each entry saved to computer moves to find the best move
+            for (Map.Entry<Integer, Point> entry : this.computerMoves.entrySet()) {
+                if (placeAMove(entry.getValue(), computerMark)) {
+                    if (hasPlayerWon(computerMark)) {
+                        gameBoard[entry.getValue().getRow()][entry.getValue().getCol()] = NO_PLAYER;
+                        return entry;
+                    }
+                    gameBoard[entry.getValue().getRow()][entry.getValue().getCol()] = NO_PLAYER;
+                }
+            }
+            // iterate through each entry saved to computer moves to find the best move
+            for (Map.Entry<Integer, Point> entry : this.computerMoves.entrySet()) {
+                if (placeAMove(entry.getValue(), humanMark)) {
+                    if (hasPlayerWon(humanMark)) {
+                        gameBoard[entry.getValue().getRow()][entry.getValue().getCol()] = NO_PLAYER;
+                        return entry;
+                    }
+                    gameBoard[entry.getValue().getRow()][entry.getValue().getCol()] = NO_PLAYER;
+                }
+            }
+            // iterate through each entry saved to computer moves to find the best move
+            for (Map.Entry<Integer, Point> entry : this.computerMoves.entrySet()) {
+                if (entry.getKey() != null && entry.getKey() == 0) {
+                    gameBoard[entry.getValue().getRow()][entry.getValue().getCol()] = NO_PLAYER;
+                    return entry;
+                }
+                return entry;
+            }
+
+        } catch (NullPointerException e){
+            log.error(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+        return null;
     }
+
+    /**
+     * Gets the map of computer moves.
+     * @return {@linkplain Map} Computer moves
+     */
+    public Map<Integer, Point> getComputerMoves(){
+        return this.computerMoves;
+    }
+    public void setComputerMoves(Map<Integer, Point> computerMoves) { this.computerMoves = computerMoves; }
+    /**
+     * Gets the game board size
+     * @return the game board size
+     */
+    public int getBoardSize() {
+        return boardSize;
+    }
+
     /**
      * The setComputerMove method accepts a point object
      * of row and column and assigns the value to
      * computerMove.
-     * @param compMove	The object representing row and column
-     * @return false if compMove NULL, true if not NULL
+     * @param key key
+     * @param point {@link Point}
+     * @return true if computer move set successfully
      */
-    public boolean setComputerMove(Point compMove) {
-        if (compMove != null) {
-            this.computerMove = compMove;
-            return true;
-        } else
-			try {
-				throw new Exception("Computer move object NULL...");
-			} catch (Exception e) {
-				log.error("Unable to place a move...\n"+e.getMessage());
-			}
-            
+    public boolean setComputerMove(Integer key, Point point) {
+        try {
+            log.info("\nComputer Move: {}",
+                    this.computerMoves.toString());
+            if (point != null && key != null) {
+                this.computerMoves.put(key,point);
+                return true;
+            }
+        } catch (Exception e){
+            log.error("Unable to place a move...\n{}",e.getLocalizedMessage());
+            e.printStackTrace();
+        }
         return false; 
     }
+
     /**
      * The clearBoard method wipes the game board of all moves
      * and resets the game board to its original state.
      */
     public void clearBoard() {
         for (int i = 0; i < gameBoard.length; i++) {
-            for (int j = 0; j < gameBoard.length; j++){
-                this.gameBoard[i][j] = '\u0000';
-            }  
+            for (int j = 0; j < gameBoard.length; j++) {
+                gameBoard[i][j] = NO_PLAYER;
+            }
         }
     }
 
@@ -303,9 +527,9 @@ public class Board {
      */
     public void clearBoard(Object[][] gameBoard) {
         for (int i = 0; i < gameBoard.length; i++) {
-            for (int j = 0; j < gameBoard.length; j++){
-                this.gameBoard[i][j] = '\u0000';
-            }  
+            for (int j = 0; j < gameBoard.length; j++) {
+                gameBoard[i][j] = NO_PLAYER;
+            }
         }
     }
     /**
@@ -317,49 +541,9 @@ public class Board {
         
         boolean over = hasPlayerWon(computerMark) || hasPlayerWon(humanMark)
                 || getAvailableCells().isEmpty();
-                log.info("Game is Over: "+over);
+                log.info("\nIs game over: {}",over);
                 return over;
     }
-    // /**
-    //  * The hasPlayerWon method accepts a player mark and returns
-    //  * a true or false value if winner exist or not.
-    //  *    0     1     2
-    //  * ___________________
-    //  * |__o__|__x__|__o__|  <=  0  
-    //  * |__x__|__x__|__x__|  <=  1 [   |ROWS|   ]
-    //  * |__o__|__o__|__x__|  <=  2
-    //  * ^___[ COLUMNS ]___^
-    //  * 
-    //  * Their is a pattern that opens up from the few sequences below. 
-    //  * Can we find an equation to abstract each sequence. Yes...
-    //  * 
-    //  * Horizontal sequence = [0][0],[0][1],[0][2]
-    //  * Vertical sequence = [0][0],[1][0],[2][0] 
-    //  * Diagonal sequence A = [0][0],[1][1],[2][2]
-    //  * Diagonal sequence B = [2][0],[1][1],[0][2]
-    //  * Sequences:
-    //  *  0,1,2 : a_n = n − 1
-    //  *  1,2,3 : a_n = n
-    //  *  2,3,4 : a_n = n + 1
-    //  *  0,4,8 : a_n = 4n - 4
-    //  *  6,4,2 : a_n = 2n + 8
-    //  * 
-    //  * @param player	The player mark.
-    //  * @return			The true or false if winner exist or not.
-    //  */
-    // public boolean hasPlayerWon(Object player) {
-    //     // Horizontal/Vertical/Diagonal row check
-    //     boolean hasWon = ((gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2] && gameBoard[0][2] == player) ||
-    //                     (gameBoard[1][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[1][2] && gameBoard[1][2] == player) ||
-    //                     (gameBoard[2][0] == gameBoard[2][1] && gameBoard[2][1] == gameBoard[2][2] && gameBoard[2][2] == player) ||
-    //                     (gameBoard[0][0] == gameBoard[1][0] && gameBoard[1][0] == gameBoard[2][0] && gameBoard[2][0] == player) ||
-    //                     (gameBoard[0][1] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][1] && gameBoard[2][1] == player) ||
-    //                     (gameBoard[0][2] == gameBoard[1][2] && gameBoard[1][2] == gameBoard[2][2] && gameBoard[2][2] == player) ||
-    //                     (gameBoard[0][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][2] && gameBoard[2][2] == player) ||
-    //                     (gameBoard[0][2] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][0] && gameBoard[2][0] == player));
-    //     // logger.debug("Has Player Won: "+hasWon);
-    //     return hasWon;
-    // }
     /**
      * The getAvailableCells method retrieves and returns a
      * list available empty cells on the game board.
@@ -367,18 +551,19 @@ public class Board {
      */
     public List<Point> getAvailableCells(){
         List<Point> availableCells = new ArrayList<>();
-
         for (int r = 0; r < gameBoard.length; r++) {
             for (int c = 0; c < gameBoard.length; c++)
             {
-
-                // logger.debug("row: "+r+" | Column: "+c+ " | getSub: "+getSub(r, c));
-                if (String.valueOf(this.gameBoard[r][c]).isEmpty()) {
+                if ( this.gameBoard[r][c] == NO_PLAYER )
+                {
+                    log.info("\nEmpty Cell found: Row => {}, Column => {}, Content => {}",
+                            r, c, gameBoard[r][c]);
                     availableCells.add(new Point(r, c, boardSize));
                 }
             }
         }
-        log.info("Available Cells: "+Arrays.deepToString(availableCells.toArray()));
+        log.info("\nAvailable Cells: {}",
+                Arrays.stream(availableCells.toArray()).collect(Collectors.toList()));
         return availableCells;
     }
     /**
@@ -395,150 +580,83 @@ public class Board {
         // System.out.println("Col: "+point.getCol());
         log.info("\nPoint: {} | Player: {}", point, player);
         // logger.debug("Point: "+point.toString()+" | Row: "+point.getRow()+" | Column: "+point.getCol());
-        if (String.valueOf(this.gameBoard[point.getRow()][point.getCol()]).isEmpty()){
-            log.info("Unable to Place A Move at => Row: "+point.getRow()+" | Column: "+point.getCol());
+//        if (this.gameBoard[point.getRow()][point.getCol()] != NO_PLAYER){
+//            log.info("\nUnable to Place A Move at => Row: "+point.getRow()+" | Column: "+point.getCol());
+//            return false;
+//        }
+        if ( gameBoard[point.getRow()][point.getCol()] == NO_PLAYER
+        || gameBoard[point.getRow()][point.getCol()] == null){
+            gameBoard[point.getRow()][point.getCol()] = player;
+            setLastMove(point.getSub(),point);
+            log.info("\nPlaced A Move at => Row: {}  | Column: {} \n Last moves: {}",
+                    point.getRow(),point.getCol(),
+                    this.lastMoves.stream().collect(Collectors.toList()));
+            return true;
+        }
+        else {
+            log.info("\nUnable to Place A Move at => Row: " +
+                    point.getRow() + " | Column: " + point.getCol());
             return false;
         }
-        gameBoard[point.getRow()][point.getCol()] = player;
-        setLastMove(point);
-        log.info("Placed A Move at => Row: {}  | Column: {} \n Last moves: {}",point.getRow(),point.getCol(), this.getLastMove().stream().collect(Collectors.toList()));
-        return true;
     }
 
-//    private void updateModelView(Point p, Object c){
-//
-//        if (String.valueOf( c ).equalsIgnoreCase("X")){
-//            switch (p.getSub()){
-//
-//                case 0 : controller.getImageView1().setImage(controller.getXs());
-//                    break;
-//                case 1 : controller.getImageView2().setImage(controller.getXs());
-//                    break;
-//                case 2 : controller.getImageView3().setImage(controller.getXs());
-//                    break;
-//                case 3 : controller.getImageView4().setImage(controller.getXs());
-//                    break;
-//                case 4 : controller.getImageView5().setImage(controller.getXs());
-//                    break;
-//                case 5 : controller.getImageView6().setImage(controller.getXs());
-//                    break;
-//                case 6 : controller.getImageView7().setImage(controller.getXs());
-//                    break;
-//                case 7 : controller.getImageView8().setImage(controller.getXs());
-//                    break;
-//                case 8 : controller.getImageView0().setImage(controller.getXs());
-//                    break;
-//            }
-//        } else {
-//            switch (p.getSub()){
-//
-//                case 0 : controller.getImageView1().setImage(controller.getOs());
-//                    break;
-//                case 1 : controller.getImageView2().setImage(controller.getOs());
-//                    break;
-//                case 2 : controller.getImageView3().setImage(controller.getOs());
-//                    break;
-//                case 3 : controller.getImageView4().setImage(controller.getOs());
-//                    break;
-//                case 4 : controller.getImageView5().setImage(controller.getOs());
-//                    break;
-//                case 5 : controller.getImageView6().setImage(controller.getOs());
-//                    break;
-//                case 6 : controller.getImageView7().setImage(controller.getOs());
-//                    break;
-//                case 7 : controller.getImageView8().setImage(controller.getOs());
-//                    break;
-//                case 8 : controller.getImageView0().setImage(controller.getOs());
-//                    break;
-//            }
-//
-//        }
-//    }
+
     /**
      * The displayBoard prints the game board to the display.
      * 
      */
     public void displayBoard() {
-        System.out.println("\n");
-        for (int i = 0; i<gameBoard.length; i++)
-        {
-            for (int j = 0; j < gameBoard.length; j++)
-            {      
-                System.out.print(gameBoard[i][j]);
-                if (j == gameBoard.length-1) {
-                    System.out.print("\t\t<= ROW "+(i+1));
-                }
-                // // logger.debug("Row "+ j +" I think: "+(j+1) % gameBoard.length);
-                if (((j+1) % gameBoard.length) == 0)
-                {
-                    if (j < (gameBoard.length)){
-                        System.out.println(" ");
-                    }
-                    if (i < gameBoard.length-1){
-                        for (int j2 = 0; j2 < Math.ceil(gameBoard.length-1); j2++) {
-                            System.out.print("-+");
-                        }
-                    }
-                    if (i < (gameBoard.length-1)){
-                        System.out.println("-");
-                    }
-                }
-                else
-                {
-                    System.out.print("|");
-                }
-            }
-        }    
-        System.out.println("\n");
-        for (int i = 0; i < gameBoard.length; i++) {
-            System.out.print(""+(i+1)+" ");
-        }
-        System.out.println("\n\n⇑-⇑-⇑-COLUMNS");
-        System.out.println("\n\n\n");
-        log.info("Printed Game Board...");
+        System.out.printf("%s",displayBoard(this.gameBoard));
     }
     /**
      * The displayBoard prints the game board to the display.
      * @param gameBoard the game board
      */
-    public void displayBoard(Object[][] gameBoard) {
-        System.out.println("\n");
-        for (int i = 0; i < gameBoard.length; i++)
+    public String displayBoard(Object[][] gameBoard) {
+        String board = String.format("\n\n");
+
+        for (int i = 0; i<gameBoard.length; i++)
         {
             for (int j = 0; j < gameBoard.length; j++)
-            {      
-                System.out.printf(String.valueOf(gameBoard[i][j]));
-                if (j == gameBoard.length-1) {
-                    System.out.print("\t\t<= ROW "+(i+1));
+            {
+                board += String.format("%s",(gameBoard[i][j].toString().isEmpty() ? " ": gameBoard[i][j]));
+                if (j == gameBoard.length-1)
+                {
+                    board += String.format("\t\t<= ROW %s", (i+1));
                 }
-                // // logger.debug("Row "+ j +" I think: "+(j+1) % gameBoard.length);
                 if (((j+1) % gameBoard.length) == 0)
                 {
-                    if (j < (gameBoard.length)){
-                        System.out.println(" ");
+                    if (j < (gameBoard.length))
+                    {
+                        board += String.format(" \n");
                     }
-                    if (i < gameBoard.length-1){
-                        for (int j2 = 0; j2 < Math.ceil(gameBoard.length-1); j2++) {
-                            System.out.print("-+");
+                    if (i < gameBoard.length-1)
+                    {
+                        for (int j2 = 0; j2 < gameBoard.length-1; j2++)
+                        {
+                            board += String.format("-+");
                         }
                     }
-                    if (i < (gameBoard.length-1)){
-                        System.out.println("-");
+                    if (i < (gameBoard.length-1))
+                    {
+                        board += String.format("-\n");
                     }
                 }
                 else
                 {
-                    System.out.print("|");
+                    board += String.format("|");
                 }
             }
-        }    
-        System.out.println("\n");
-        for (int i = 0; i < gameBoard.length; i++) {
-            System.out.print(""+(i+1)+" ");
         }
-        System.out.println("\n\n⇑-⇑-⇑-COLUMNS");
-        System.out.println("\n\n\n");
-        log.info("Printed Game Board...");
+        board += String.format("\n");
+        for (int i = 0; i < gameBoard.length; i++)
+        {
+            board += String.format("%s ",(i+1));
+        }
+        board += String.format("\n\n⇑-⇑-⇑-COLUMNS\n");
+//        System.out.printf("%s",board);
+        log.info("\n{} \n\nPrinted Game Board...", board);
+        return board;
     }
     /**
      * Set up the game board with initial whitespace character.
@@ -547,157 +665,251 @@ public class Board {
      */
     public Object[][] setupGameBrd(Object[][] gBoard){
         // int label = 0;
+        log.info("\nGame board Length: {}",gBoard.length);
         for (int i = 0; i < gBoard.length; i++) {
             for (int j = 0; j < gBoard.length; j++) {
                 // System.out.println("Sub:" +s);
-                if (String.valueOf(gBoard[i][j]).matches("([XOxo]?)"))
+                if (gBoard[i][j] != null)
                 {
-                    log.info("Cell taken: I: {}, J:{}, {} ",i,j, String.valueOf(gBoard[i][j]));
+                    log.info("\nCell taken: I: {}, J:{}, contents: {} ",i,j,gBoard[i][j].toString());
                 }else {
-                    gBoard[i][j] = ' ';
+                    gBoard[i][j] = NO_PLAYER;
+                    log.info("\nSetting => Row: {} | Column: {}, contents: {}",i,j,gBoard[i][j].toString());
                 }
-                // logger.debug("Sub: |" +gBoard[i][j]+ "|");
             }
         }
-        log.info("Finished setting up game...");
+        log.info("\nFinished setting up game...");
         return gBoard;
     }
-    // /**
-    //  * Get the current line number of executing thread
-    //  * @return the integer value line number of executing thread
-    //  */
-    // public static int getLineNumber() {
-    //     return Thread.currentThread().getStackTrace()[2].getLineNumber();
-    // }
+
+
+    public boolean diagonalCheckFromBottomLeft(Object player){
+        Object[][] gBoard = getGameBoard();
+        int numberOfColumns = gBoard.length;
+        log.info("\nPerforming diagonalCheckFromBottomLeft check......");
+        boolean isWinner = false;
+        // counts how many time a match is found
+        // reset counter after every row check
+        int validityCounter = 0;
+        // check diagonal from bottom lift
+        for (int i = 0; i < numberOfColumns; i++)
+        { // Count down function: a_n = -i + numberOfColumns
+            // System.out.println("Valid cntr: "+validityCounter);
+            // System.out.println("Row calc: "+(numberOfColumns - (i+1))+" | Column: "+i);
+            if (player == gBoard[(numberOfColumns - (i+1))][i])
+            {
+                validityCounter++;
+                log.info("\ndiagonalCheckFromBottomLeft Valid Counter: {} | Point => row: {} , Column: {}",
+                        validityCounter, (numberOfColumns - (i+1)), i);
+            }
+            else if (validityCounter < i){
+                isWinner = false;
+                break;
+            }
+            if (validityCounter == numberOfColumns){
+                log.info("\ndiagonalCheckFromBottomLeft Winner Found...");
+                isWinner = true;
+                break;
+            }
+        }
+        return isWinner;
+    }
+
+    public boolean diagonalCheckFromTopLeft(Object player){
+        Object[][] gBoard = getGameBoard();
+        int numberOfColumns = gBoard.length;
+        log.info("\nPerforming diagonalCheckFromTopLeft check......");
+        boolean isWinner = false;
+        // counts how many time a match is found
+        // reset counter after every row check
+        int validityCounter = 0;
+        /// check diagonal from top left
+        for (int i = 0; i < numberOfColumns; i++)
+        {
+            // System.out.println("Valid cntr: "+validityCounter);
+            // System.out.println("Row calc: "+i+" | Column: "+i);
+            if (player == gBoard[i][i])
+            {
+                validityCounter++;
+                log.info("\ndiagonalCheckFromTopLeft Valid Counter: {} | Point => row: {} , Column: {}",
+                        validityCounter, i, i);
+            }
+            else if (validityCounter < i){
+                isWinner = false;
+                break;
+            }
+            if (validityCounter == numberOfColumns){
+                log.info("\ndiagonalCheckFromTopLeft Winner Found...");
+                isWinner = true;
+                break;
+            }
+        }
+        return isWinner;
+    }
+
+    public boolean horizontalCheck(Object player){
+        Object[][] gBoard = getGameBoard();
+        int numberOfColumns = gBoard.length;
+        // counts how many time a match is found
+        boolean isWinner = false;
+        int validityCounter;
+        // now check each set of rows
+        for (int i = 0; i < numberOfColumns; i++)
+        {   // reset counter after every row check
+            validityCounter= 0;
+            for (int j = 0; j < numberOfColumns; j++)
+            {
+//                    log.info("\nTesting[{}][{}]: {}",i,j, gBoard[i][j]);
+                if (player == gBoard[i][j])
+                {
+                    validityCounter += 1;
+                    log.info("\nhorizontalCheck Valid Counter: {} | Point => row: {} , Column: {}",
+                            validityCounter, i, j);
+                }
+                else if (validityCounter < j){
+                    isWinner = false;
+                    break;
+                }
+            }
+            if (validityCounter == numberOfColumns){
+                log.info("\nhorizontalCheck Winner Found...");
+                isWinner = true;
+                break;
+            }
+        }
+        return isWinner;
+    }
+
+    public boolean verticalCheck(Object player){
+        log.info("\nPerforming verticalCheck(for Player : {})",player);
+        Object[][] gBoard = getGameBoard();
+        int numberOfColumns = gBoard.length;
+        // counts how many time a match is found
+        boolean isWinner = false;
+        int validityCounter;
+        // get all the columns for checking
+        for (int i = 0; i < numberOfColumns; i++)
+        {   // reset counter after every row check
+            validityCounter = 0;
+            // System.out.println("Valid cntr: "+validityCounter);
+            for (int j = 0; j < numberOfColumns; j++)
+            {
+                if (player == gBoard[j][i])
+                {
+                    validityCounter += 1;
+                    log.info("\nverticalCheck Valid Counter: {} | Point => row: {} , Column: {}",
+                            validityCounter, j, i);
+                }
+                else if (validityCounter < j){
+                    isWinner = false;
+                    break;
+                }
+            }
+            if (validityCounter == numberOfColumns){
+                log.info("\nverticalCheck Winner Found...");
+                isWinner = true;
+                break;
+            }
+        }
+        return isWinner;
+    }
     /**
+     * The hasPlayerWon method accepts a player mark and returns
+     * a true or false value if winner exist or not.
+     * <br>
+     * _____ COLUMNS ]____ <br>
+     *    0     1     2 <br>
+     * ___________________ <br>
+     * |__o__|__x__|__o__|  <=  0 <br>
+     * |__x__|__x__|__x__|  <=  1 [   |ROWS|   ] <br>
+     * |__o__|__o__|__x__|  <=  2 <br>
+     * <br>
+     * There is a pattern that opens up from the few sequences below.
+     * Can we find an equation to abstract each sequence. Yes...
+     * <br>
+     * Horizontal sequence = [0][0],[0][1],[0][2] <br>
+     * Vertical sequence = [0][0],[1][0],[2][0] <br>
+     * Diagonal sequence A = [0][0],[1][1],[2][2] <br>
+     * Diagonal sequence B = [2][0],[1][1],[0][2] <br>
+     * <br>
+     * Sequences: <br>
+     *  0,1,2 : a_n = n − 1 <br>
+     *  1,2,3 : a_n = n <br>
+     *  2,3,4 : a_n = n + 1 <br>
+     *  0,4,8 : a_n = 4n - 4 <br>
+     *  6,4,2 : a_n = 2n + 8 <br>
+     * <br>
      * Dynamically checks for a winning pattern based on the board size
      * @param player the player mark
-     * @return true if player won, false if no win
+     * @return {@linkplain boolean} => true if player won, false if no win
      */
-    public boolean hasPlayerWon(Object player)
-    {
-        boolean hasPlayerWon=false;
-        log.info("Last Move Size" +
-                ": {}",lastMove.size());
-//        log.info("Testing player: {}",player);
-//        displayBoard(getGameBoard());
+    public boolean hasPlayerWon(Object player){
+        // parallel execution implementation for game board checks
 
-        Object[][] gBoard = getGameBoard();
-        if (lastMove.size() == 0){
-            throw new IllegalStateException("No last moves have been recorded.");
+        if (getAvailableCells().size() > (Math.pow(getBoardSize(),2) - getBoardSize())){
+            return false;
         }
-        int numberOfColumns = gBoard.length;
-        // check the rows
-        BooleanSupplier horizontalCheck = () ->
-        {
-//            log.info("Performing horizontal check......");
-            // counts how many time a match is found
-            int validityCounter; 
-            // now check each set of rows
-            for (int i = 0; i < numberOfColumns; i++) 
-            {   // reset counter after every row check
-                validityCounter= 0; 
-                // System.out.println("Valid cntr: "+validityCounter);
-                // get the first value of each set
-                // Object firstValue = val.get(i)[0];
-                for (int j = 0; j < numberOfColumns; j++)
-                {
-//                    log.info("Testing[{}][{}]: {}",i,j, gBoard[i][j]);
-                    if (player == gBoard[i][j])
-                    {
-                        validityCounter++;
-//                         log.info("Valid cntr: "+validityCounter);
-                        if (validityCounter == numberOfColumns) {
-//                            log.info("\nPerforming horizontalCheck check......\nWinner found......");
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        };
-        // check the columns
-        BooleanSupplier verticalCheck = () -> {
-//            log.info("Performing vertical check......");
-            // counts how many time a match is found
-
-            // get all the columns for checking
-            for (int i = 0; i < numberOfColumns; i++)
-            {   // reset counter after every row check
-                int validityCounter= 0;
-                // System.out.println("Valid cntr: "+validityCounter);
-                for (int j = 0; j < numberOfColumns; j++)
-                {
-                    if (player == gBoard[j][i])
-                    {
-                        validityCounter++;
-                        // System.out.println("Valid cntr: "+validityCounter);
-                        if (validityCounter == numberOfColumns){
-//                            log.info("\nPerforming verticalCheck check......\nWinner found......");
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        };
-        // check the diagonal from top left
-        BooleanSupplier diagonalCheckFromTopLeft = () -> {
-//            log.info("Performing diagonalCheckFromTopLeft check......");
-            // counts how many time a match is found
-            // reset counter after every row check
-            int validityCounter = 0; 
-            /// check diagonal from top left
-            for (int i = 0; i < numberOfColumns; i++)
-            {   
-                // System.out.println("Valid cntr: "+validityCounter);
-                // System.out.println("Row calc: "+i+" | Column: "+i);
-                if (player == gBoard[i][i])
-                {
-                    validityCounter++;
-                    // System.out.println("Valid cntr: "+validityCounter);
-                    if (validityCounter == numberOfColumns){
-//                        log.info("\nPerforming diagonalCheckFromTopLeft check......\nWinner found......");
-                        return true;}
-                }
-                // else break;
-            }
-            return false;
-        };
-        // check the diagonal from bottom left
-        BooleanSupplier diagonalCheckFromBottomLeft = () -> {
-//            log.info("Performing diagonalCheckFromBottomLeft check......");
-            // counts how many time a match is found
-            // reset counter after every row check
-            int validityCounter = 0; 
-            // check diagonal from bottom lift
-            for (int i = 0; i < numberOfColumns; i++) 
-            { // Count down function: a_n = -i + numberOfColumns
-                // System.out.println("Valid cntr: "+validityCounter);
-                // System.out.println("Row calc: "+(numberOfColumns - (i+1))+" | Column: "+i);
-                if (player == gBoard[(numberOfColumns - (i+1))][i])
-                {
-                    validityCounter++;
-                    // System.out.println("Valid cntr: "+validityCounter);
-                    if (validityCounter == numberOfColumns){
-//                        log.info("\nPerforming diagonalCheckFromBottomLeft check......\nWinner found......");
-                        return true;}
-                }
-                // else break;
-            }
-            return false;
-        };
-
-        if (verticalCheck.getAsBoolean())
-            hasPlayerWon = true;
-        if (horizontalCheck.getAsBoolean())
-            hasPlayerWon = true;
-        if (diagonalCheckFromTopLeft.getAsBoolean())
-            hasPlayerWon = true;
-        if (diagonalCheckFromBottomLeft.getAsBoolean())
-            hasPlayerWon = true;
-        return hasPlayerWon;
+        else {
+            return Arrays.stream(new Boolean[]{
+                    verticalCheck(player),
+                    horizontalCheck(player),
+                    diagonalCheckFromBottomLeft(player),
+                    diagonalCheckFromTopLeft(player)
+                    })
+                    .parallel()
+                    .anyMatch(bool -> bool == true);
+        }
     }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = 1;
+//        final Object $previous = this.getPrevious();
+//        result = result * PRIME + ($previous == null ? 43 : $previous.hashCode());
+//        final Object $next = this.getNext();
+//        result = result * PRIME + ($next == null ? 43 : $next.hashCode());
+        final Object $computerMark = this.getComputerMark();
+        result = result * PRIME + ($computerMark == null ? 43 : $computerMark.hashCode());
+        final Object $humanMark = this.getHumanMark();
+        result = result * PRIME + ($humanMark == null ? 43 : $humanMark.hashCode());
+        result = result * PRIME + Arrays.deepHashCode(this.getGameBoard());
+        final Object $computerMoves = this.getComputerMoves();
+        result = result * PRIME + ($computerMoves == null ? 43 : $computerMoves.hashCode());
+        result = result * PRIME + this.getRound();
+        result = result * PRIME + this.getComputerScore();
+        result = result * PRIME + this.getHumanScore();
+        result = result * PRIME + this.getDepth();
+        result = result * PRIME + this.getBoardSize();
+        final Object $lastMoves = this.getLastMoves();
+        result = result * PRIME + ($lastMoves == null ? 43 : $lastMoves.hashCode());
+        return result;
+    }
+
+    public String toString() {
+        return "Board(" +
+//                "previous=" + this.getPrevious() + ", " +
+//                "next=" + this.getNext() + ", " +
+                "computerMark=" + this.getComputerMark() + ", " +
+                "humanMark=" + this.getHumanMark() + ", " +
+                "gameBoard=" + Arrays.deepToString(this.getGameBoard()) + ", " +
+                "computerMoves=" + this.getComputerMoves() + ", " +
+                "round=" + this.getRound() + ", " +
+                "computerScore=" + this.getComputerScore() + ", " +
+                "humanScore=" + this.getHumanScore() + ", " +
+                "depth=" + this.getDepth() + ", " +
+                "boardSize=" + this.getBoardSize() + ", " +
+                "lastMoves=" + this.getLastMoves() + ")";
+    }
+
+//    public int checkGameBoard(Object player){
+//        List<Object[]> array = Arrays.stream(getGameBoard())
+//                .collect(Collectors.toList());
+//        List<Object> arr = array.collect(Collectors.toList());
+//        System.out.printf("\nPlayers '%s' Found: %s",
+//                player,
+//                arr.toString());
+//        return arr.size();
+//    }
 
     public static class MyTask implements Runnable {
         BooleanSupplier target;
@@ -712,303 +924,63 @@ public class Board {
             bool = target.getAsBoolean();
         }
     }
-//    /**
-//     * Dynamically checks for a winning pattern based on the board size
-//     * @param player the player mark
-//     * @param gBoard the game board
-//     * @return true if player won, false if no win
-//     */
-//    public boolean hasPlayerWon(Object player, Object[][] gBoard)
-//    {
-//        boolean won = false;
-//
-//        int numberOfColumns = gBoard.length;
-//        // lambda to check the rows
-//        BooleanSupplier horizontalCheck = () -> {
-//            boolean isWinner = false;
-//            List<Object[]> val = new ArrayList<Object[]>();
-//            // counts how many time a match is found
-//            int validityCounter;
-//            // get all the rows for checking
-//            for (int i = 0; i < numberOfColumns; i++)
-//            val.add(gBoard[i]);
-//            // now check each set of rows
-//            for (int i = 0; i < numberOfColumns; i++)
-//            {   // reset counter after every row check
-//                validityCounter= 0;
-//                // System.out.println("Valid cntr: "+validityCounter);
-//                // get the first value of each set
-//                // Object firstValue = val.get(i)[0];
-//                for (int j = 0; j < numberOfColumns; j++)
-//                {
-//                    if (player == val.get(i)[j])
-//                    {
-//                        validityCounter++;
-//                        // System.out.println("Valid cntr: "+validityCounter);
-//                        if (validityCounter == numberOfColumns)
-//                            return isWinner = true;
-//                    }
-//                    // else break;
-//                }
-//            }
-//            return isWinner;
-//        };
-//        // lambda to check the columns
-//        BooleanSupplier verticalCheck = () -> {
-//            boolean isWinner = false;
-//            // counts how many time a match is found
-//            int validityCounter;
-//            // get all the columns for checking
-//            for (int i = 0; i < numberOfColumns; i++)
-//            {   // reset counter after every row check
-//                validityCounter= 0;
-//                // System.out.println("Valid cntr: "+validityCounter);
-//                for (int j = 0; j < numberOfColumns; j++)
-//                {
-//                    if (player == gBoard[j][i])
-//                    {
-//                        validityCounter++;
-//                        // System.out.println("Valid cntr: "+validityCounter);
-//                        if (validityCounter == numberOfColumns)
-//                            return isWinner = true;
-//                    }
-//                    // else break;
-//                }
-//            }
-//            return isWinner;
-//        };
-//        // lambda to check the diagonal from top left
-//        BooleanSupplier diagonalCheckFromTopLeft = () -> {
-//            boolean isWinner = false;
-//            // counts how many time a match is found
-//            // reset counter after every row check
-//            int validityCounter = 0;
-//            /// check diagonal from top left
-//            for (int i = 0; i < numberOfColumns; i++)
-//            {
-//                // System.out.println("Valid cntr: "+validityCounter);
-//                // System.out.println("Row calc: "+i+" | Column: "+i);
-//                if (player == gBoard[i][i])
-//                {
-//                    validityCounter++;
-//                    // System.out.println("Valid cntr: "+validityCounter);
-//                    if (validityCounter == numberOfColumns)
-//                        return isWinner = true;
-//                }
-//                // else break;
-//            }
-//            return isWinner;
-//        };
-//        // lambda to check the diagonal from bottom left
-//        BooleanSupplier diagonalCheckFromBottomLeft = () -> {
-//            boolean isWinner = false;
-//            // counts how many time a match is found
-//            // reset counter after every row check
-//            int validityCounter = 0;
-//            // check diagonal from bottom lift
-//            for (int i = 0; i < numberOfColumns; i++)
-//            { // Count down function: a_n = -i + numberOfColumns
-//                // System.out.println("Valid cntr: "+validityCounter);
-//                // System.out.println("Row calc: "+(numberOfColumns - (i+1))+" | Column: "+i);
-//                if (player == gBoard[(numberOfColumns - (i+1))][i])
-//                {
-//                    validityCounter++;
-//                    // System.out.println("Valid cntr: "+validityCounter);
-//                    if (validityCounter == numberOfColumns)
-//                        return isWinner = true;
-//                }
-//                // else break;
-//            }
-//            return isWinner;
-//        };
-//
-//        // List<Point> lMove = new ArrayList<Point>(getLastMove());
-//        // Function<Character,Integer> lM = (playerMark) -> {
-//        //     int cnt = 0;
-//        //     for (Point point : lMove) {
-//        //         if (gameBoard[point.getRow()][point.getCol()] == (playerMark)){
-//        //             logger.debug("Player mark found: " + gameBoard[point.getRow()][point.getCol()] + " @ Point: "+ point.toString());
-//        //             cnt++;
-//        //         }
-//        //     }
-//        //     return cnt;
-//        // };
-//
-//        // // exit if number of moves less than quantity to constitute a win
-//        // if(lMove.size() < gameBoard.length)
-//        // {
-//        //     return false;
-//        // } // exit if number of player mark is less than quantity to constitute a win
-//        // else if (lM.apply(player) < gameBoard.length)
-//        // {
-//        //     return false;
-//        // }
-//        // won = verticalCheck.getAsBoolean();
-//        // won = diagonalCheckFromTopLeft.getAsBoolean();
-//        // won = diagonalCheckFromBottomLeft.getAsBoolean();
-//        // won = horizontalCheck.getAsBoolean();
-//        won =   verticalCheck.getAsBoolean() == true ? true :
-//                horizontalCheck.getAsBoolean() == true ? true :
-//                diagonalCheckFromTopLeft.getAsBoolean() == true ? true :
-//                diagonalCheckFromBottomLeft.getAsBoolean() == true ? true : false;
-//                log.info("Player "+player+" has won: "+won);
-//        return won;
-//    }
-//    /**
-//     * Dynamically checks for a winning pattern based on the board size.
-//     * @param player the player mark
-//     * @param gBoard the game board
-//     * @param number_Of_Win_Pattern_To_Check_In_A_Row define the size of the win pattern, i.e. 4x4, 5x5
-//     * @return true if player won, false if no win
-//     */
-//    public boolean hasPlayerWon(Object player, Object[][] gBoard, int number_Of_Win_Pattern_To_Check_In_A_Row)
-//    {
-//        boolean won = false;
-//
-//        int numberOfColumns = number_Of_Win_Pattern_To_Check_In_A_Row;
-//        // lambda to check the rows
-//        BooleanSupplier horizontalCheck = () -> {
-//            boolean isWinner = false;
-//            List<Object[]> val = new ArrayList<Object[]>();
-//            // counts how many time a match is found
-//            int validityCounter;
-//            // get all the rows for checking
-//            for (int i = 0; i < numberOfColumns; i++)
-//            val.add(gBoard[i]);
-//            // now check each set of rows
-//            for (int i = 0; i < numberOfColumns; i++)
-//            {   // reset counter after every row check
-//                validityCounter= 0;
-//                // System.out.println("Valid cntr: "+validityCounter);
-//                // get the first value of each set
-//                // Object firstValue = val.get(i)[0];
-//                for (int j = 0; j < numberOfColumns; j++)
-//                {
-//                    if (player == val.get(i)[j])
-//                    {
-//                        validityCounter++;
-//                        // System.out.println("Valid cntr: "+validityCounter);
-//                        if (validityCounter == numberOfColumns)
-//                            return isWinner = true;
-//                    }
-//                    // else break;
-//                }
-//            }
-//            return isWinner;
-//        };
-//        // lambda to check the columns
-//        BooleanSupplier verticalCheck = () -> {
-//            boolean isWinner = false;
-//            // counts how many time a match is found
-//            int validityCounter;
-//            // get all the columns for checking
-//            for (int i = 0; i < numberOfColumns; i++)
-//            {   // reset counter after every row check
-//                validityCounter= 0;
-//                // System.out.println("Valid cntr: "+validityCounter);
-//                for (int j = 0; j < numberOfColumns; j++)
-//                {
-//                    if (player == gBoard[j][i])
-//                    {
-//                        validityCounter++;
-//                        // System.out.println("Valid cntr: "+validityCounter);
-//                        if (validityCounter == numberOfColumns)
-//                            return isWinner = true;
-//                    }
-//                    // else break;
-//                }
-//            }
-//            return isWinner;
-//        };
-//        // lambda to check the diagonal from top left
-//        BooleanSupplier diagonalCheckFromTopLeft = () -> {
-//            boolean isWinner = false;
-//            // counts how many time a match is found
-//            // reset counter after every row check
-//            int validityCounter = 0;
-//            /// check diagonal from top left
-//            for (int i = 0; i < numberOfColumns; i++)
-//            {
-//                // System.out.println("Valid cntr: "+validityCounter);
-//                // System.out.println("Row calc: "+i+" | Column: "+i);
-//                if (player == gBoard[i][i])
-//                {
-//                    validityCounter++;
-//                    // System.out.println("Valid cntr: "+validityCounter);
-//                    if (validityCounter == numberOfColumns)
-//                        return isWinner = true;
-//                }
-//                // else break;
-//            }
-//            return isWinner;
-//        };
-//        // lambda to check the diagonal from bottom left
-//        BooleanSupplier diagonalCheckFromBottomLeft = () -> {
-//            boolean isWinner = false;
-//            // counts how many time a match is found
-//            // reset counter after every row check
-//            int validityCounter = 0;
-//            // check diagonal from bottom lift
-//            for (int i = 0; i < numberOfColumns; i++)
-//            { // Count down function: a_n = -i + numberOfColumns
-//                // System.out.println("Valid cntr: "+validityCounter);
-//                // System.out.println("Row calc: "+(numberOfColumns - (i+1))+" | Column: "+i);
-//                if (player == gBoard[(numberOfColumns - (i+1))][i])
-//                {
-//                    validityCounter++;
-//                    // System.out.println("Valid cntr: "+validityCounter);
-//                    if (validityCounter == numberOfColumns)
-//                        return isWinner = true;
-//                }
-//                // else break;
-//            }
-//            return isWinner;
-//        };
-//        // won = verticalCheck.getAsBoolean();
-//        // won = diagonalCheckFromTopLeft.getAsBoolean();
-//        // won = diagonalCheckFromBottomLeft.getAsBoolean();
-//        // won = horizontalCheck.getAsBoolean();
-//        won =   verticalCheck.getAsBoolean() == true ? true :
-//                horizontalCheck.getAsBoolean() == true ? true :
-//                diagonalCheckFromTopLeft.getAsBoolean() == true ? true :
-//                diagonalCheckFromBottomLeft.getAsBoolean() == true ? true : false;
-//        log.info("Player "+player+" has won: "+won);
-//        return won;
-//    }
+    ///////////////////////////////////////////////////////////////////////////
+    //  MAIN
+    ///////////////////////////////////////////////////////////////////////////
+     public static void main(String[] arg)
+     {
+         //////////////////////////////////////////////////////////////////////
+         // TicTacToe t = new TicTacToe();
+         // t.play();
+         ///////////////////////////////////////////////////////////////////////
+         Object[][] gBoard = {
+                             {"O","O","","X"},
+                             {"","","X","X"},
+                             {"O","","","O"},
+                             {"X","","X","O"}
+                             };
+         // Convert elements to strings and concatenate them, separated by commas
+         log.info("\nBoard: {}", Arrays.stream(gBoard).collect(Collectors.toList()));
 
+         Board bd1 = new Board(gBoard);
+         bd1.setComputerMark("X");
+         bd1.setHumanMark("O");
+         bd1.setLastMove(new Point(0,0,bd1.boardSize));
+         bd1.setGameBoard(bd1.setupGameBrd(bd1.getGameBoard()));
+         System.out.printf("\nBoard 1");
+         bd1.placeAMove(new Point(1,0,bd1.boardSize),"O");
 
-//     public static void main(String[] arg)
-//     {
-//         ///////////////////////////////////////////////////////////////////////
-//         // TicTacToe t = new TicTacToe();
-//	 	// t.play();
-//         ///////////////////////////////////////////////////////////////////////
-//             // TicTacToe t = new TicTacToe();
-//             // Object[][] gBoard = new Object[3][3];
-//             Object[][] gBoard = { {'X','O','O','O'},
-//                                 {'X','X','X','O'},
-//                                 {'O','O','X','O'},
-//                                 {'O','O','X','O'} };
-//             // // Convert elements to strings and concatenate them, separated by commas
-//         // String joined = things.stream()
-//         // .map(Object::toString)
-//         // .collect(Collectors.joining(", "));
-//             log.info("\nBoard: {}", Arrays.stream(gBoard).collect(Collectors.toList()));
-//             Board bd = new Board(gBoard);
-////             bd.setupGameBrd(gBoard);
-//             bd.setComputerMark('X');
-//             bd.setHumanMark('O');
-//             bd.setLastMove(new Point(2,2,bd.boardSize));
-//             // // System.out.println("bd.getSub: "+bd.getSub(3, 3));
-//             // // System.out.println("bd.getSub: "+bd.getCol(8));
-//             // // System.out.println("bd.getSub: "+bd.getRow(8));
-//             bd.displayBoard(gBoard);
-//             log.info("Is \"O\" Winner: {}",bd.hasPlayerWon('X'));
-//             log.info("End of Game TicTacToe............");
-//
-//
-//         // System.out.println("End of test class...");
-//     }
+         Board bd2 = new Board(bd1);
+         System.out.printf("\nBoard 2");
+//         bd1.setNext(bd2);
+//         bd2.setPrevious(bd1);
+         bd2.placeAMove(new Point(2,2,bd2.boardSize),"O");
+
+         Board bd3 = new Board(bd2);
+         System.out.printf("\nBoard 3");
+//         bd2.setNext(bd3);
+//         bd3.setPrevious(bd2);
+         bd3.placeAMove(new Point(1,1,bd3.boardSize),"O");
+
+         bd1.displayBoard();
+         System.out.printf("\nIs \"O\" Winner: %s \n",
+                 bd1.hasPlayerWon("O"));
+         System.out.printf("\nIs \"X\" Winner: %s \n",
+                 bd1.hasPlayerWon("X"));
+         bd2.displayBoard();
+         System.out.printf("\nIs \"O\" Winner: %s \n",
+                 bd2.hasPlayerWon("O"));
+         System.out.printf("\nIs \"X\" Winner: %s \n",
+                 bd2.hasPlayerWon("X"));
+         bd3.displayBoard();
+         System.out.printf("\nIs \"O\" Winner: %s \n",
+                 bd3.hasPlayerWon("O"));
+         System.out.printf("\nIs \"X\" Winner: %s \n",
+                 bd3.hasPlayerWon("X"));
+//         System.out.printf("\nLength => bd1: %s, bd2: %s, bd3: %s \n",
+//                 bd1.getLength(), bd2.getLength(), bd3.getLength());
+         System.out.printf("\nEnd of Game TicTacToe......\n");
+     }
 
 /////////////////////   END OF CLASS Board  /////////////////////////
 }

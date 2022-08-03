@@ -238,7 +238,7 @@ public class PointAndScore {
         PrintWriter outputFile = new PrintWriter(fwriter);
         outputFile.println("********************  Computer Move: On Round: " + 	board.getRound() +  "  | Depth: " + board.getDepth() +
                 "  |  Score: " + board.getComputerScore() + " | Max value: " + getMax() + "  |  Point: " +
-                board.getComputerMove() + "  **************");
+                board.getComputerMoves() + "  **************");
         outputFile.close();
     }
     // /**

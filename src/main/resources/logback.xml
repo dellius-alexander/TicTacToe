@@ -16,6 +16,19 @@ WARN 	  YES 	  YES 	  YES 	YES 	NO 	    NO
 ERROR 	YES 	  YES 	  YES 	YES 	YES 	  NO
  -->
 
+
+
+<!--        Conversion  Logger name	                Result
+              specifier	                                                      -->
+<!--        %logger	    mainPackage.sub.sample.Bar	mainPackage.sub.sample.Bar-->
+<!--        %logger{0}	mainPackage.sub.sample.Bar	Bar-->
+<!--        %logger{5}	mainPackage.sub.sample.Bar	m.s.s.Bar-->
+<!--        %logger{10}	mainPackage.sub.sample.Bar	m.s.s.Bar-->
+<!--        %logger{15}	mainPackage.sub.sample.Bar	m.s.sample.Bar-->
+<!--        %logger{16}	mainPackage.sub.sample.Bar	m.sub.sample.Bar-->
+<!--        %logger{26}	mainPackage.sub.sample.Bar	mainPackage.sub.sample.Bar-->
+
+
 <configuration>
   <!-- Insert the current time formatted as "yyyyMMdd'T'HHmmss" under
        the key "dateTimeFormat" into the logger context. This value will be
@@ -23,6 +36,21 @@ ERROR 	YES 	  YES 	  YES 	YES 	YES 	  NO
   <timestamp key="dateTimeFormat" datePattern="yyyyMMdd'T'HHmm"/>
   <!-- Assign a LOG_DIR property -->
   <property name="LOG_DIR" value="data/logs"/>
+
+  <!--  &lt;!&ndash; FILE APPENDER &ndash;&gt;-->
+  <!--  <appender name="FILE" class="ch.qos.logback.core.FileAppender"> -->
+  <!--    &lt;!&ndash;  use the previously created timestamp to create a uniquely named log file &ndash;&gt;-->
+  <!--    <file>${LOG_DIR}/tic_tac_toe_${dateTimeFormat}.log</file>-->
+  <!--    <fileNamePattern>${LOG_DIR}/tic_tac_toe_${dateTimeFormat}_%i.log</fileNamePattern>-->
+  <!--    <encoder>-->
+  <!--      <pattern>%d{HH:mm:ss.SSS} [%t] [%-5level] [%logger{10}.%M][%L] |- %msg%n</pattern>-->
+  <!--    </encoder>-->
+  <!--    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+  <!--        <level>DEBUG</level>-->
+  <!--    </filter>-->
+  <!--  </appender> -->
+
+
   <!-- ROLLING FILE APPENDER -->
   <appender
           name="FIX_WINDOW_BASED_FILE"
@@ -38,39 +66,33 @@ ERROR 	YES 	  YES 	  YES 	YES 	YES 	  NO
       <maxFileSize>100MB</maxFileSize>
     </triggeringPolicy>
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>%d{HH:mm:ss.SSS} [%t] [%highlight(%-5level)] [%cyan(%logger{10}.%M)][%L] |- %msg %n</pattern>
+<!--      <pattern>[%highlight(%d{yyyy-MM-ddTHH:mm:ss.SSS})] [%t] [%highlight(%-5level)] [%logger{0}.%M][%L] |- %msg %n</pattern>-->
+      <pattern>%msg %n</pattern>
     </encoder>
     <prudent>false</prudent>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>DEBUG</level>
+      <level>INFO</level>
     </filter>
   </appender>
 
-  <!-- FILE APPENDER -->
-  <!-- <appender name="FILE" class="ch.qos.logback.core.FileAppender"> -->
-  <!-- use the previously created timestamp to create a uniquely
-       named log file -->
-  <!-- <file>${LOG_DIR}/lendit_book_kiosk_${dateTimeFormat}.log</file>
-  <encoder>
-    <pattern>%d{HH:mm:ss.SSS} [%t] [%-5level] [%logger{10}.%M][%L] |- %msg%n</pattern>
-  </encoder>
-  <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>DEBUG</level>
-  </filter>
-</appender> -->
+
 
   <!-- CONSOLE APPENDER -->
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <withJansi>false</withJansi>
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>%d{HH:mm:ss.SSS} [%t] [%highlight(%-5level)] [%cyan(%logger{10}.%M)][%L] |- %msg %n</pattern>
+<!--      <pattern>[%highlight(%d{yyyy-MM-ddTHH:mm:ss.SSS})] [%t] [%highlight(%-5level)] [%cyan(%logger{0}.%M)][%L] |- %msg %n</pattern>-->
+      <pattern>%msg %n</pattern>
+
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>INFO</level>
+      <level>WARN</level>
     </filter>
   </appender>
-  <!-- Add ALL appenders to your root logger -->
-  <root level="DEBUG">
+
+
+  <!-- Add ALL appender to your root logger -->
+  <root level="INFO">
     <appender-ref ref="FIX_WINDOW_BASED_FILE" />
     <appender-ref ref="STDOUT" />
   </root>
