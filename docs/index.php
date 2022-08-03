@@ -8,9 +8,10 @@
     <title>Minimax</title>
 </head>
 <body>
-<h1>Minimax Algorithm</h1>
+
 <?php
 
+    echo "<h1>Minimax Algorithm</h1><br/>";
 
 ?>
 
