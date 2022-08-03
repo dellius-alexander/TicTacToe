@@ -4,6 +4,14 @@
 [//]: # (--module-path=/Users/dalexander/SynologyDrive/Repos/TicTacToe/javafx/javafx-sdk-18.0.1/lib --add-modules=javafx.controls,javafx.fxml)
 A dockerized Java standalone application with Maven build. The TicTacToe implements minimax heristics algorithm. 
 
+
+---
+
+## Checkout Minimax algorithm
+
+[Minimax Algorithm](index.php "Minimax Algorithm")
+
+
 ---
 
 [![Apache License 2.0](https://img.shields.io/hexpm/l/plug.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
