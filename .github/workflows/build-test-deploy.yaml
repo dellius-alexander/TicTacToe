@@ -122,24 +122,24 @@ jobs:
         env:
           MAVEN_VERSION: ${{ env.MAVEN_VERSION }}
           JAVA_HOME: ${{ env.JAVA_HOME }}
-          run: |
-            apt-get update
-            apt-get install -y mysql-client curl mvn
-            curl -fsSLo  /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz  \
-            https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
-            tar xzvf /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz  -C  /opt/
-            echo "Maven Version: ${MAVEN_VERSION}"
-            export M2_HOME=/opt/apache-maven-${MAVEN_VERSION} 
-            export M2=/opt/apache-maven-${MAVEN_VERSION}/bin 
-            export PATH=/opt/apache-maven-${MAVEN_VERSION}/bin:$PATH 
-            export MAVEN_OPTS='-Xms256m -Xmx512m' 
-            ln -sf  "/opt/apache-maven-${MAVEN_VERSION}/bin/mvn" /usr/local/bin
-            mysql --help
-            java -version
-            whereis java
-            which java   
-            mvn -v
-            printenv
+        run: |
+          apt-get update
+          apt-get install -y mysql-client curl mvn
+          curl -fsSLo  /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz  \
+          https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+          tar xzvf /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz  -C  /opt/
+          echo "Maven Version: ${MAVEN_VERSION}"
+          export M2_HOME=/opt/apache-maven-${MAVEN_VERSION} 
+          export M2=/opt/apache-maven-${MAVEN_VERSION}/bin 
+          export PATH=/opt/apache-maven-${MAVEN_VERSION}/bin:$PATH 
+          export MAVEN_OPTS='-Xms256m -Xmx512m' 
+          ln -sf  "/opt/apache-maven-${MAVEN_VERSION}/bin/mvn" /usr/local/bin
+          mysql --help
+          java -version
+          whereis java
+          which java   
+          mvn -v
+          printenv
   Deploy:
     needs:
       - Build
