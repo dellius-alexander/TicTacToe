@@ -496,11 +496,11 @@ public class Minimax implements Serializable {
         ///////////////////////////////////////////////////
 
         Board bd = new Board(new Object[][]{
+                {"O","",""},
                 {"","",""},
-                {"","",""},
-                {"O","",""}
+                {"","",""}
         });
-        bd.setLastMove(new Point(2,1, bd.getBoardSize()));
+        bd.setLastMove(new Point(0,0, bd.getBoardSize()));
 
         ///////////////////////////////////////////////////
         System.out.printf("\nStart of Minimax");
