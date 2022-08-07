@@ -4,6 +4,42 @@
 [//]: # (--module-path=/Users/dalexander/SynologyDrive/Repos/TicTacToe/javafx/javafx-sdk-18.0.1/lib --add-modules=javafx.controls,javafx.fxml)
 A dockerized Java standalone application with Maven build. The TicTacToe implements minimax heristics algorithm. 
 
+---
+
+### Creating javafx jar 
+
+
+```shell
+# Add an environment variable pointing to the lib directory of the runtime:
+
+export PATH_TO_FX=/path/to/javafx-sdk-18.0.2/lib
+
+# Compile the project:
+
+javac --module-path $PATH_TO_FX --add-modules=javafx.controls -d out $(find src/main/java -name "*.java")
+
+# And create the fat jar, adding the JavaFX required jars and the platform-specific native libraries. For the hellofx project:
+
+
+find $PATH_TO_FX/{javafx.base.jar,javafx.graphics.jar,javafx.controls.jar} -exec unzip -nq {} -d out \;
+
+#uncomment for Linux:
+cp $PATH_TO_FX/{libprism*.so,libjavafx*.so,libglass*.so,libdecora_sse.so} out
+
+#uncomment for Mac:
+#cp $PATH_TO_FX/{libprism*.dylib,libjavafx*.dylib,libglass.dylib,libdecora_sse.dylib} out
+
+rm out/META-INF/MANIFEST.MF out/module-info.class
+mkdir libs
+jar --create --file=libs/hellofx.jar --main-class=hellofx.Launcher -C out .
+
+# And after the jar is built, you can run it:
+
+java -jar libs/hellofx.jar
+
+```
+
+
 
 ---
 

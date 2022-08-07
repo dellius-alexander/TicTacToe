@@ -37,7 +37,7 @@ public class MinimaxSearch implements Serializable {
     // Holds the value of "row and column" reference to computer move.
     private static Map<Integer, Point> computerMoves = null;
     // set root
-    private static final GameBoardNode<Board> binaryTree = new GameBoardNode<>(0);
+    private static final BTNode<Board> binaryTree = new BTNode<>(0);
 
     /**
      * Minimax-Search algorithm involves two players MAX and MIN, MAX moves first and
@@ -124,8 +124,8 @@ public class MinimaxSearch implements Serializable {
      * move for the computer for play towards a win or draw.
      * @param depth		How many moves ahead to loop through.
      * @param player	THe mark of the player during each iteration.
+     * @param board     the game board
      * @return			The best possible move for computer to take.
-     * @throws IOException throw exectption for file I/O event
      */
     public int minimax (int depth, Object player, Board board) {
 
@@ -163,7 +163,7 @@ public class MinimaxSearch implements Serializable {
 //                        board.setLeft(b); // connect left node head/root
                         // get new point from list of available cells
                         Point point = availablePoints.get(i);
-                        binaryTree.setLeft(new GameBoardNode<>(board,index));
+                        binaryTree.setLeft(new BTNode<>(board,index));
 //                        b.setPoint(point);
                         log.info("\nIteration: {} | Depth: {} | Point: {}", i, depth, point);
                     board.placeAMove(point, board.getComputerMark());
@@ -227,7 +227,7 @@ public class MinimaxSearch implements Serializable {
 //                        board.setRight(b); // connect left node head/root
                         // get new point from list of available cells
                         Point point = availablePoints.get(i);
-                        binaryTree.setRight(new GameBoardNode<>(board,index));
+                        binaryTree.setRight(new BTNode<>(board,index));
 //                        b.setPoint(point);
                         log.info("\nIteration: {} | Depth: {} | Point: {}", i, depth, point);
                         board.placeAMove(point, board.getHumanMark());
@@ -287,66 +287,66 @@ public class MinimaxSearch implements Serializable {
         return (player.equals(board.getComputerMark()) ? alpha : beta );
     }
     ///////////////////////////////////////////////////////////////////////////
-    /**
-     * Main Method
-     * @param args
-     */
-    public static void main(String[] args)
-    {
-        try {
-            ///////////////////////////////////////////////////
-//        Board bd = new Board(new String[][]{
-//                {"X","","X","","O"},
-//                {"","O","O","O","X"},
-//                {"","X","O","O",""},
-//                {"","X","O","X","X"},
-//                {"O","X","O","","X"}
-//        });
-
-            ///////////////////////////////////////////////////
-//        Board bd = new Board(new String[][]{
-//                        {"X","O","O","O"},
-//                        {"O","","",""},
-//                        {"X","O","",""},
-//                        {"X","O","X","X"}
-//        });
-
-            ///////////////////////////////////////////////////
-            Board bd = new Board(new Object[][]{
-                    {"O", "O", ""},
-                    {"", "", ""},
-                    {"", "X", ""}
-            });
-
-            ///////////////////////////////////////////////////
+//    /**
+//     * Main Method
+//     * @param args command line arguments
+//     */
+//    public static void main(String[] args)
+//    {
+//        try {
+//            ///////////////////////////////////////////////////
+////        Board bd = new Board(new String[][]{
+////                {"X","","X","","O"},
+////                {"","O","O","O","X"},
+////                {"","X","O","O",""},
+////                {"","X","O","X","X"},
+////                {"O","X","O","","X"}
+////        });
+//
+//            ///////////////////////////////////////////////////
+////        Board bd = new Board(new String[][]{
+////                        {"X","O","O","O"},
+////                        {"O","","",""},
+////                        {"X","O","",""},
+////                        {"X","O","X","X"}
+////        });
+//
+//            ///////////////////////////////////////////////////
+//            Board bd = new Board(new Object[][]{
+//                    {"O", "O", ""},
+//                    {"", "", ""},
+//                    {"", "X", ""}
+//            });
+//
+//            ///////////////////////////////////////////////////
+////            bd.displayBoard();
+//            bd.setComputerMark("X");
+//            bd.setHumanMark("O");
+//            int nn = 0;
+//            BTNode<Board> btree = new BTNode<>(new Board(bd), 0);
+//            MinimaxSearch mx = new MinimaxSearch();
+//            int move = mx.minimax(0, bd.getComputerMark(), bd);
+//            Point point = bd.getBestMove().getValue();
+//            System.out.printf("\nBest Result: %s | Point: %S\n",
+//                    move, point);
+//            System.out.printf("\nComputer Moves: %s\n",
+//                    bd.getComputerMoves());
+//            if (point == null) {
+//                System.exit(0);
+//            }
+//            bd.placeAMove(point, bd.getComputerMark());
+//            System.out.printf("\nPlayer: %s has won: %s\n",
+//                    bd.getComputerMark(), bd.hasPlayerWon(bd.getComputerMark()));
+//            System.out.printf("\nLast Move: %s\n",
+//                    bd.getLastMove());
+//
+//            System.out.printf("\nMinimax computer moves: %s", mx.computerMoves);
 //            bd.displayBoard();
-            bd.setComputerMark("X");
-            bd.setHumanMark("O");
-            int nn = 0;
-            GameBoardNode<Board> btree = new GameBoardNode<>(new Board(bd), 0);
-            MinimaxSearch mx = new MinimaxSearch();
-            int move = mx.minimax(0, bd.getComputerMark(), bd);
-            Point point = bd.getBestMove().getValue();
-            System.out.printf("\nBest Result: %s | Point: %S\n",
-                    move, point);
-            System.out.printf("\nComputer Moves: %s\n",
-                    bd.getComputerMoves());
-            if (point == null) {
-                System.exit(0);
-            }
-            bd.placeAMove(point, bd.getComputerMark());
-            System.out.printf("\nPlayer: %s has won: %s\n",
-                    bd.getComputerMark(), bd.hasPlayerWon(bd.getComputerMark()));
-            System.out.printf("\nLast Move: %s\n",
-                    bd.getLastMove());
-
-            System.out.printf("\nMinimax computer moves: %s", mx.computerMoves);
-            bd.displayBoard();
-        } catch (Exception e){
-            log.error(e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-    }
+//        } catch (Exception e){
+//            log.error(e.getLocalizedMessage());
+//            e.printStackTrace();
+//        }
+//    }
     ///////////////////////////////////////////////////////////////////////////
 
 }

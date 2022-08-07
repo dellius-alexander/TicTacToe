@@ -1,26 +1,39 @@
 package com.hyfi.tictactoe;
 
-import org.junit.Test;
+
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
 
 public class TicTacToeTest {
 
-    @Test
-    public static void TestOpponent(){
+    Board bd;
+    Minimax mx;
 
-        Board bd = new Board(new Object[][]{
+    @BeforeTest
+    public void setup()
+    {
+        bd = new Board(new Object[][]{
                 {"O","",""},
-                {"","O",""},
-                {"","","X"}
+                {"","",""},
+                {"","",""}
         });
         bd.setLastMove(new Point(0,0, bd.getBoardSize()));
+        mx = new Minimax(bd);
+    }
+
+    @Test
+    public void TestOpponent()
+    {
+
+
 
         ///////////////////////////////////////////////////
         System.out.printf("\nStart of Minimax");
         bd.displayBoard();
         bd.setComputerMark("X");
         bd.setHumanMark("O");
-        // pass game board to minimax class
-        Minimax mx = new Minimax(bd);
 
         Object turn = bd.getComputerMark();
         System.out.printf("\n-----------------------------------------------------\n");
@@ -82,10 +95,9 @@ public class TicTacToeTest {
             }
         }
 
+        Assert.assertFalse(bd.hasPlayerWon("X"));
 
     }
 
-    public static void main(String[] args) {
-        TestOpponent();
-    }
+
 }

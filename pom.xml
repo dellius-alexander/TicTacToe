@@ -2,54 +2,41 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>tictactoe</groupId>
-    <artifactId>tictactoe</artifactId>
+    <groupId>gameboardview</groupId>
+    <artifactId>gameboardview</artifactId>
     <version>2.3</version>
     <description>TicTacToe application implementing Minimax algorithm.</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <company>hyfi</company>
-        <appname>tic_tac_toe</appname>
-        <java.version>11.0.12</java.version>
+        <company>dalexander2israel</company>
+        <appname>tic-tac-toe</appname>
+        <java.version>11</java.version>
         <!-- <maven.compiler.source>11.0.11</maven.compiler.source>
         <maven.compiler.target>11.0.11</maven.compiler.target> -->
-        <maven.compiler.release>11.0.12</maven.compiler.release>
+        <maven.compiler.release>11</maven.compiler.release>
 
         <failsafe.argLine>2.22.1</failsafe.argLine>
-        <org.fuin.smp.uid>1000</org.fuin.smp.uid>
-        <org.fuin.smp.gid>1000</org.fuin.smp.gid>
-        <org.openjfx.version>11.0.1</org.openjfx.version>
+        <org.fuin.smp.uid>$(id -u)</org.fuin.smp.uid>
+        <org.fuin.smp.gid>$(id -g)</org.fuin.smp.gid>
+        <org.openjfx.version>11</org.openjfx.version>
         <org.slf4j.version>1.7.25</org.slf4j.version>
         <org.javafx.maven.plugin.version>0.0.8</org.javafx.maven.plugin.version>
+        <org.apache.maven.plugins.version>3.4.0</org.apache.maven.plugins.version>
     </properties>
 
     <dependencies>
 
         <!-- compile -->
 
-        <!-- <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.6</version>
-        </dependency> -->
+        <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-javadoc-plugin -->
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${org.apache.maven.plugins.version}</version>
+        </dependency>
 
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/javafx/javafx &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>javafx</groupId>-->
-<!--            <artifactId>javafx</artifactId>-->
-<!--            <version>2.2.7</version>-->
-<!--            <type>pom</type>-->
-<!--        </dependency>-->
-
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.openjfx/javafx &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>org.openjfx</groupId>-->
-<!--            <artifactId>javafx</artifactId>-->
-<!--            <version>${org.openjfx.version}</version>-->
-<!--            <type>pom</type>-->
-<!--        </dependency>-->
 
 
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
@@ -60,9 +47,13 @@
             <optional>true</optional>
         </dependency>
 
-
-
-
+        <!-- https://mvnrepository.com/artifact/org.testng/testng -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.6.1</version>
+            <scope>test</scope>
+        </dependency>
 
 
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-base -->
@@ -153,7 +144,19 @@
 
     <build>
 
+        <resources>
+            <resource>
+                <directory>
+                    src/main/docker
+                </directory>
+                <targetPath>
+                    docker
+                </targetPath>
+            </resource>
+        </resources>
+
         <plugins>
+
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -162,34 +165,32 @@
                 <!--     <release>${maven.compiler.release}</release>-->
                     <jlinkImageName>tictactoe</jlinkImageName>
                     <launcher>launcher</launcher>
-                    <mainClass>tictactoe/com.hyfi.tictactoe</mainClass>
+                    <mainClass>tictactoe/com.hyfi.tictactoe.GameBoardView</mainClass>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.10.1</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>${maven.compiler.release}</source>
+                    <target>${maven.compiler.release}</target>
                 </configuration>
             </plugin>
-
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>3.0.1</version>
-<!--                <configuration>-->
-<!--&lt;!&ndash;                    <jvmArguments>-Dspring.application.admin.enabled=true</jvmArguments>&ndash;&gt;-->
-<!--                    <excludes>-->
-<!--                        <exclude>-->
-<!--                            <groupId>org.project-lombok</groupId>-->
-<!--                            <artifactId>lombok</artifactId>-->
-<!--                        </exclude>-->
-<!--                    </excludes>-->
-<!--                </configuration>-->
+                <configuration>
+<!--                    <jvmArguments>-Dspring.application.admin.enabled=true</jvmArguments>-->
+                    <excludes>
+                        <exclude>
+                            org.project-lombok
+                        </exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -235,6 +236,7 @@
                         <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
+                            <goal>build-classpath</goal>
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
@@ -273,8 +275,11 @@
                 <configuration>
                     <images>
                         <image>
+                            <alias>tictactoe</alias>
                             <name>${company}/${appname}</name>
+<!--    build configuration defines how a Docker image should be created     -->
                             <build>
+                                <from>java:11</from>
                                 <tags>
                                     <tag>latest</tag>
                                     <tag>${project.version}</tag>
@@ -284,8 +289,15 @@
                                     <basedir>/usr/src/${appname}</basedir>
                                     <descriptor>${project.basedir}/src/main/assembly.xml</descriptor>
                                 </assembly>
+                                <cmd>
+                                    <shell>java -jar ${company}/${appname}.jar</shell>
+                                </cmd>
                             </build>
+<!--    Run configuration defines how a container should be created from this image     -->
                             <run>
+                                <ports>
+                                    <port>8080</port>
+                                </ports>
                                 <volumes>
                                     <bind>
                                         <volume>${project.build.directory}:/usr/src/${appname}/data</volume>
@@ -297,9 +309,23 @@
                                     <date>ISO8601</date>
                                 </log>
                                 <wait>
-                                    <exit />
+                                    <exit/>
                                 </wait>
+                                <links>
+                                    <exit/>
+                                </links>
                             </run>
+
+<!--    Copy configuration defines what files and directories of a container should be copied to the host by docker:copy goal   -->
+<!--                            <copy>-->
+<!--                                <entries>-->
+<!--                                    <entry>-->
+<!--                                        <containerPath>/etc/hosts</containerPath>-->
+<!--                                        <hostDirectory>${project.build.directory}</hostDirectory>-->
+<!--                                    </entry>-->
+<!--                                </entries>-->
+<!--                            </copy>-->
+<!--    #############################################################   -->
                         </image>
                     </images>
                 </configuration>
@@ -353,7 +379,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>

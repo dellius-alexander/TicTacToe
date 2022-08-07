@@ -152,9 +152,10 @@ public class TicTacToe {
             board.setRound(round);
             do{
                 // generate a random subscript for the first computer move
-                sub = rand.nextInt(board.getGameBoard().length-1);
+                sub = rand.nextInt((int) Math.pow(boardSize,2));
                 test = sub % 2;
-            } while (test == 1 || sub == (board.getGameBoard().length));
+            } while (test == 0);
+            System.out.printf("\n Sub: %s", sub);
             Point point = new Point(getRow(sub), boardSize);
 //            Point point = board.getBestMove();
 //            Point point = new Point(getRow(sub)-1,getCol(sub)-1,boardSize);
@@ -216,14 +217,13 @@ public class TicTacToe {
     /**
      * The computerMove method initiates the minimax algorithm
      * and plays the best possible move for win or draw.
-     * @throws IOException throws IOException
      */
     public void computerMove() {
         // find the best move for this round of game play
         int move = mini.minimax(
                 0,
                 computersMark,
-                new Board(board),
+                board,
                 Integer.MIN_VALUE,
                 0
         );
@@ -318,26 +318,28 @@ public class TicTacToe {
             this.winnerExist();
         }while (this.playAgain());
     }
+
     ///////////////////////////////////////////////////////////////////////////
-     public static void main(String[] args) throws IOException
-     {
-         ///////////////////////////////////////////////////////////////////////
-         TicTacToe t = new TicTacToe();
-	 	 t.play();
-         ///////////////////////////////////////////////////////////////////////
-             // TicTacToe t = new TicTacToe();
-             // Object[][] gBoard = new Object[3][3];
-//             Object[][] gBoard = { {'X',' ',' ','X'},
-//                                 {'X','X','X',' '},
-//                                 {' ',' ','X',' '},
-//                                 {'X',' ',' ','X'}};
-//             Board bd = new Board(gBoard);
-//             // // System.out.println("bd.getSub: "+bd.getSub(3, 3));
-//             // // System.out.println("bd.getSub: "+bd.getCol(8));
-//             // // System.out.println("bd.getSub: "+bd.getRow(8));
-//             bd.displayBoard(gBoard);
-//             System.out.println(bd.hasPlayerWon('X'));
-         log.info("End of Game TicTacToe............");
-         // System.out.println("End of test class...");
-     }
+//     public static void main(String[] args) throws IOException
+//     {
+//         ///////////////////////////////////////////////////////////////////////
+//         TicTacToe t = new TicTacToe();
+//	 	 t.play();
+//         ///////////////////////////////////////////////////////////////////////
+//             // TicTacToe t = new TicTacToe();
+//             // Object[][] gBoard = new Object[3][3];
+////             Object[][] gBoard = { {'X',' ',' ','X'},
+////                                 {'X','X','X',' '},
+////                                 {' ',' ','X',' '},
+////                                 {'X',' ',' ','X'}};
+////             Board bd = new Board(gBoard);
+////             // // System.out.println("bd.getSub: "+bd.getSub(3, 3));
+////             // // System.out.println("bd.getSub: "+bd.getCol(8));
+////             // // System.out.println("bd.getSub: "+bd.getRow(8));
+////             bd.displayBoard(gBoard);
+////             System.out.println(bd.hasPlayerWon('X'));
+//         log.info("End of Game TicTacToe............");
+//         // System.out.println("End of test class...");
+//     }
+
 }

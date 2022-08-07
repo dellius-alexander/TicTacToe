@@ -8,41 +8,64 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-// GameBoardNode Node
-public class GameBoardNode<GameBoard> implements Serializable {
-    private static final Logger log = LoggerFactory.getLogger(GameBoardNode.class);
-    protected GameBoardNode<GameBoard> left, right, rootNode; // the branching node to the left and right of this node
+/**
+ * Binary Tree Node Class with Generic GameBoard
+ * @param <GameBoard> type parameter GameBoard
+ */
+public class BTNode<GameBoard> implements Serializable {
+    private static final Logger log = LoggerFactory.getLogger(BTNode.class);
+    protected BTNode<GameBoard> left, right, rootNode; // the branching node to the left and right of this node
     protected GameBoard root; // the game board associated with this node
     protected Point point; // value assigned to node
     private int index = 0;
     private static int order = 0;
-    public GameBoardNode(GameBoard board){
+
+    /**
+     * Binary Tree Node
+     * @param board the game board
+     */
+    public BTNode(GameBoard board){
         this.rootNode = null;
         this.root = board;
-//        this.index = index;
+        this.index = 1;
         this.setIndex(this.rootNode.size() + 1);
         this.left = null;
         this.right = null;
     }
-    public GameBoardNode(GameBoard board,int index){
+
+    /**
+     * Binary Tree Node
+     * @param board the game board
+     * @param index the index of this node
+     */
+    public BTNode(GameBoard board, int index){
         this.rootNode = null;
         this.root =  board;
-//        System.out.printf("\nGame Board: ");
-//        this.root.displayBoard();
         this.index = index;
         this.left = null;
         this.right = null;
     }
-    public GameBoardNode(GameBoard board,int index,GameBoardNode<GameBoard> rootNode){
+
+    /**
+     * Binary Tree Node
+     * @param rootNode the root node of this branching factor
+     * @param board the game board
+     * @param index the index of this node
+
+     */
+    public BTNode(BTNode<GameBoard> rootNode,GameBoard board, int index){
         this.rootNode = rootNode;
         this.root =  board;
-//        System.out.printf("\nGame Board: ");
-//        this.root.displayBoard();
         this.index = index;
         this.left = null;
         this.right = null;
     }
-    public GameBoardNode(int index){
+
+    /**
+     * Binary Tree Node
+     * @param index the index of this node
+     */
+    public BTNode(int index){
         this.rootNode = null;
         this.root = null;
         this.index = index;
@@ -50,21 +73,14 @@ public class GameBoardNode<GameBoard> implements Serializable {
         this.right = null;
     }
 
-//    public GameBoardNode(GameBoard board, GameBoardNode<GameBoard> left, GameBoardNode<GameBoard> right){
-//        this.root = board;
-//        this.left = left;
-//        this.right = right;
-//        if (this.right != null){
-//            this.right.setIndex(this.rootNode.size() + 1);
-//            this.right.setRoot(this.rootNode);
-//        }
-//        if (this.left != null){
-//            this.left.setIndex(this.rootNode.size() + 1);
-//            this.left.setRoot(this.rootNode);
-//        }
-//    }
-
-    public GameBoardNode(GameBoard board, GameBoardNode<GameBoard> left, GameBoardNode<GameBoard> right, int index){
+    /**
+     * Binary Tree Node
+     * @param board the game board
+     * @param left the left node
+     * @param right the right node
+     * @param index the index of this node
+     */
+    public BTNode(GameBoard board, BTNode<GameBoard> left, BTNode<GameBoard> right, int index){
         this.rootNode = null;
         this.root = board;
         this.left = left;
@@ -78,57 +94,110 @@ public class GameBoardNode<GameBoard> implements Serializable {
         }
     }
 
+    /**
+     * Get the point
+     * @return the {@linkplain Point}
+     */
     public Point getPoint() {
         return point;
     }
 
+    /**
+     * Set the node point
+     * @param point the {@linkplain Point}
+     */
     public void setPoint(Point point) {
         this.point = point;
     }
 
-    public GameBoardNode<GameBoard> getHead() {
+    /**
+     * Get the head node of the vertex
+     * @return a {@linkplain BTNode}
+     */
+    public BTNode<GameBoard> getHead() {
         return this.rootNode;
     }
 
-    public void setHead(GameBoardNode<GameBoard> root){
+    /**
+     * Set the head node
+     * @param root the root node
+     */
+    public void setHead(BTNode<GameBoard> root){
         this.rootNode = root;
     }
 
+    /**
+     * Get the game board
+     * @return the {@linkplain GameBoard}
+     */
     public GameBoard getBoard() {
         return root;
     }
 
+    /**
+     * Set the game board
+     * @param board the game board
+     */
     public void setBoard(GameBoard board){
         this.root = board;
     }
 
-    public synchronized void setLeft(GameBoardNode<GameBoard> board){
+    /**
+     * Set the left node
+     * @param board the left node
+     */
+    public synchronized void setLeft(BTNode<GameBoard> board){
         this.left = board;
         this.left.setHead(this);
     }
 
-    public synchronized GameBoardNode<GameBoard> getLeft(){
+    /**
+     * Get the left node
+     * @return the left {@linkplain BTNode}
+     */
+    public synchronized BTNode<GameBoard> getLeft(){
         return this.left;
     }
 
-    public synchronized void setRight(GameBoardNode<GameBoard> board){
+    /**
+     * Set the right node
+     * @param board the right node
+     */
+    public synchronized void setRight(BTNode<GameBoard> board){
         this.right = board;
         this.right.setHead(this);
     }
 
-    public synchronized GameBoardNode<GameBoard> getRight(){
+    /**
+     * Get the right node
+     * @return the {@linkplain BTNode} node
+     */
+    public synchronized BTNode<GameBoard> getRight(){
         return this.right;
     }
+
+    /**
+     * Set the node index
+     * @param index the node index
+     */
     public void setIndex(int index){
         this.index = index;
     }
 
+    /**
+     * Get the node index
+     * @return the node index
+     */
     public int getIndex(){
         return this.index;
     }
 
-    public GameBoardNode<GameBoard> getRootNode(){
-        GameBoardNode<GameBoard> temp = this;
+    /**
+     * Get the root node.
+     * @return the root {@linkplain BTNode} node
+     */
+    public BTNode<GameBoard> getRootNode(){
+        BTNode<GameBoard> temp = this;
         while (temp.getHead() != null){
 //            System.out.printf("\nTemp Index: %s", temp.getIndex());
             temp = temp.getHead();
@@ -137,7 +206,11 @@ public class GameBoardNode<GameBoard> implements Serializable {
         return temp;
     }
 
-    public GameBoardNode<GameBoard> getTerminalNode(){
+    /**
+     * Get the terminal node
+     * @return the {@linkplain BTNode} terminal node
+     */
+    public BTNode<GameBoard> getTerminalNode(){
         return getRootNode().getNode(getRootNode().size()-1);
     }
 
@@ -146,7 +219,7 @@ public class GameBoardNode<GameBoard> implements Serializable {
      * @param index the index of the node we are in search for.
      * @return the node or null node with index of -1
      */
-    public GameBoardNode<GameBoard> getNode(int index){
+    public BTNode<GameBoard> getNode(int index){
         return getNode(index, this);
     }
 
@@ -154,9 +227,9 @@ public class GameBoardNode<GameBoard> implements Serializable {
      * Searches for and retrieves the node, if it exists.
      * @param index the index of the node we are in search for.
      * @param node the current node being traversed.
-     * @return
+     * @return {@linkplain BTNode} node
      */
-    public GameBoardNode<GameBoard> getNode(int index, GameBoardNode<GameBoard> node){
+    public BTNode<GameBoard> getNode(int index, BTNode<GameBoard> node){
 
         if (node != null){
             if (index == node.index) {
@@ -172,7 +245,7 @@ public class GameBoardNode<GameBoard> implements Serializable {
                 return getNode(index,node.right);
             }
         }
-        return new GameBoardNode<>(-1);
+        return new BTNode<>(-1);
     }
 
     /**
@@ -189,9 +262,9 @@ public class GameBoardNode<GameBoard> implements Serializable {
      * Traverses each node and counts how many nodes exist.
      * @param node root/head node
      * @param sum current sum of nodes or 0
-     * @return
+     * @return the size of the tree
      */
-    private synchronized int size(GameBoardNode<?> node, int sum){
+    private synchronized int size(BTNode<?> node, int sum){
 //        System.out.printf("\nCount: %s", count);
         // If the tree is empty do nothing
         if (node != null)
@@ -217,11 +290,11 @@ public class GameBoardNode<GameBoard> implements Serializable {
 
     /**
      * Checks to see if nodes has a child node with the following index.
-     * @param index
+     * @param index the index of the nodde
      * @param node
      * @return
      */
-    private synchronized boolean contains(int index, GameBoardNode<?> node)
+    private synchronized boolean contains(int index, BTNode<?> node)
     {
         boolean exists = false;
         if (node != null){
@@ -241,7 +314,7 @@ public class GameBoardNode<GameBoard> implements Serializable {
      * left subtree, and then traverse the right subtree.
      * @param node binary tree
      */
-    public static void preOrder(GameBoardNode<?> node) {
+    public static void preOrder(BTNode<?> node) {
         // If the tree is empty do nothing
         if (node != null)
         {
@@ -258,7 +331,7 @@ public class GameBoardNode<GameBoard> implements Serializable {
      * root node, and then traverse the right subtree.
      * @param node binary tree
      */
-    public static void inOrder(GameBoardNode<?> node) {
+    public static void inOrder(BTNode<?> node) {
         // If the tree is empty do nothing
         if (node != null)
         {
@@ -275,7 +348,7 @@ public class GameBoardNode<GameBoard> implements Serializable {
      * and then process the data at the root node.
      * @param node binary tree
      */
-    public static void postOrder(GameBoardNode<?> node) {
+    public static void postOrder(BTNode<?> node) {
         // If the tree is empty do nothing
         if (node != null)
         {
@@ -290,82 +363,83 @@ public class GameBoardNode<GameBoard> implements Serializable {
 
 
 
-    /**
-     * Main Driver
-     * @param args Command line arguments
-     */
-    public static void main(String[] args) throws CloneNotSupportedException {
-        List<GameBoardNode<Board>> nodeList = new ArrayList<>();
-        Object[][] gb6 = {
-                {"X","O","O"},
-                {"","O","X"},
-                {"O","","X"},
-        };
-        GameBoardNode<Board> n6 = new GameBoardNode<>(new Board(gb6),6);
-        Object[][] gb5 = {
-                {"X","O","O"},
-                {"","","X"},
-                {"O","","X"},
-        };
-        GameBoardNode<Board> n5 = new GameBoardNode<>(new Board(gb5),5);
-        Object[][] gb4 = {
-                {"","O","O"},
-                {"","","X"},
-                {"O","","X"},
-
-        };
-//        GameBoardNode<Board> n4 = new GameBoardNode<>(new Board(gb4),n6,n5,4);
-        GameBoardNode<Board> n4 = new GameBoardNode<>(new Board(gb4),4);
-        n4.setLeft(n6);
-        n4.setRight(n5);
-        n6.setHead(n4);
-        n5.setHead(n4);
-        Object[][] gb3 = {
-                {"","O",""},
-                {"","","X"},
-                {"O","","X"},
-        };
-        GameBoardNode<Board> n3 = new GameBoardNode<>(new Board(gb3),3);
-        Object[][] gb2 = {
-                {"","O",""},
-                {"","","X"},
-                {"O","",""},
-        };
-//        GameBoardNode<Board> n2 = new GameBoardNode<>(new Board(gb2), n4, n3,2);
-        GameBoardNode<Board> n2 = new GameBoardNode<>(new Board(gb2),2);
-        n2.setLeft(n4);
-        n2.setRight(n3);
-        n4.setHead(n2);
-        n3.setHead(n2);
-        Object[][] gb1 = {
-                {"","O",""},
-                {"","","X"},
-                {"","",""},
-        };
-        GameBoardNode<Board> n1 = new GameBoardNode<>(new Board(gb1),1);
-        Object[][] gb0 = {
-                {"","O",""},
-                {"","",""},
-                {"","",""},
-        };
-//        GameBoardNode<Board> root = new GameBoardNode<>(new Board(gb0),n2,n1,0);
-        GameBoardNode<Board> root = new GameBoardNode<>(new Board(gb0),0);
-        root.setLeft(n2);
-        root.setRight(n1);
-        n2.setHead(root);
-        n1.setHead(root);
-        GameBoardNode.inOrder(root);
-        System.out.printf("\nContains %s: %s", 6, root.contains(6));
-        System.out.printf("\nLength: %s", root.size());
-        System.out.printf("\nNode Search Result: %s",root.getNode(6).index);
-        // search for leaf node
-        GameBoardNode<Board> terminalNode = n2.getTerminalNode();
-        System.out.printf("\nTerminal Node: ");
-        terminalNode.getBoard().displayBoard();
-        // search for root node
-        GameBoardNode<Board> rootNode = n5.getRootNode();
-        System.out.printf("\nRoot Node: ");
-        rootNode.getBoard().displayBoard();
-
-    }
+//    /**
+//     * Main Driver
+//     * @param args Command line arguments
+//     * @throws CloneNotSupportedException
+//     */
+//    public static void main(String[] args) throws CloneNotSupportedException {
+//        List<BTNode<Board>> nodeList = new ArrayList<>();
+//        Object[][] gb6 = {
+//                {"X","O","O"},
+//                {"","O","X"},
+//                {"O","","X"},
+//        };
+//        BTNode<Board> n6 = new BTNode<>(new Board(gb6),6);
+//        Object[][] gb5 = {
+//                {"X","O","O"},
+//                {"","","X"},
+//                {"O","","X"},
+//        };
+//        BTNode<Board> n5 = new BTNode<>(new Board(gb5),5);
+//        Object[][] gb4 = {
+//                {"","O","O"},
+//                {"","","X"},
+//                {"O","","X"},
+//
+//        };
+////        GameBoardNode<Board> n4 = new GameBoardNode<>(new Board(gb4),n6,n5,4);
+//        BTNode<Board> n4 = new BTNode<>(new Board(gb4),4);
+//        n4.setLeft(n6);
+//        n4.setRight(n5);
+//        n6.setHead(n4);
+//        n5.setHead(n4);
+//        Object[][] gb3 = {
+//                {"","O",""},
+//                {"","","X"},
+//                {"O","","X"},
+//        };
+//        BTNode<Board> n3 = new BTNode<>(new Board(gb3),3);
+//        Object[][] gb2 = {
+//                {"","O",""},
+//                {"","","X"},
+//                {"O","",""},
+//        };
+////        GameBoardNode<Board> n2 = new GameBoardNode<>(new Board(gb2), n4, n3,2);
+//        BTNode<Board> n2 = new BTNode<>(new Board(gb2),2);
+//        n2.setLeft(n4);
+//        n2.setRight(n3);
+//        n4.setHead(n2);
+//        n3.setHead(n2);
+//        Object[][] gb1 = {
+//                {"","O",""},
+//                {"","","X"},
+//                {"","",""},
+//        };
+//        BTNode<Board> n1 = new BTNode<>(new Board(gb1),1);
+//        Object[][] gb0 = {
+//                {"","O",""},
+//                {"","",""},
+//                {"","",""},
+//        };
+////        GameBoardNode<Board> root = new GameBoardNode<>(new Board(gb0),n2,n1,0);
+//        BTNode<Board> root = new BTNode<>(new Board(gb0),0);
+//        root.setLeft(n2);
+//        root.setRight(n1);
+//        n2.setHead(root);
+//        n1.setHead(root);
+//        BTNode.inOrder(root);
+//        System.out.printf("\nContains %s: %s", 6, root.contains(6));
+//        System.out.printf("\nLength: %s", root.size());
+//        System.out.printf("\nNode Search Result: %s",root.getNode(6).index);
+//        // search for leaf node
+//        BTNode<Board> terminalNode = n2.getTerminalNode();
+//        System.out.printf("\nTerminal Node: ");
+//        terminalNode.getBoard().displayBoard();
+//        // search for root node
+//        BTNode<Board> rootNode = n5.getRootNode();
+//        System.out.printf("\nRoot Node: ");
+//        rootNode.getBoard().displayBoard();
+//
+//    }
 }

@@ -1,23 +1,15 @@
-package com.hyfi.tictactoe.UI;
+package com.hyfi.tictactoe;
 
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.*;
 
-import com.hyfi.tictactoe.Board;
-import com.hyfi.tictactoe.Minimax;
-import com.hyfi.tictactoe.Point;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -26,7 +18,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,14 +178,16 @@ public class FXMLBoardController implements Serializable {
 
 
             dialog.setText(greeting);
-            dialog.setFont(Font.font("Times New Roman", FontWeight.BOLD, 18));
+            dialog.setFont(Font.font("Times New Roman", FontWeight.BOLD, 22));
+            dialog.autosize();
             dialog.requestFocus();
+            yes.autosize();
+            no.autosize();
             dialogBox.autosize();
             borderPane.autosize();
             borderPane.getTop().setVisible(true);
+            borderPane.getTop().autosize();
             borderPane.getCenter().setVisible(false);
-            borderPane.getCenter().prefHeight(850);
-            borderPane.getCenter().prefWidth(850);
 
         } catch (Exception e){
             log.error(e.getLocalizedMessage());
@@ -209,7 +202,7 @@ public class FXMLBoardController implements Serializable {
     @FXML
     private void handleButtonAction(MouseEvent event) throws InterruptedException, FileNotFoundException {
 
-        // process terminal restart events
+        // process start game and terminal restart events
         if (!isGameStarted && isGameOver){
 
             if (event.getSource() instanceof AnchorPane){
@@ -231,13 +224,14 @@ public class FXMLBoardController implements Serializable {
                     no.setVisible(false);
                     dialogBox.setVisible(false);
 
-                    dialog.resizeRelocate(-1,-1,-1,-1);
-                    yes.resizeRelocate(-1,-1,-1,-1);
-                    no.resizeRelocate(-1,-1,-1,-1);
-                    dialogBox.resizeRelocate(-1,-1,-1,-1);
+                    dialog.resizeRelocate(0,0,0,0);
+                    yes.resizeRelocate(0,0,0,0);
+                    no.resizeRelocate(0,0,0,0);
+                    dialogBox.resizeRelocate(0,0,0,0);
 
                     borderPane.getTop().setVisible(false);
-                    borderPane.getTop().resizeRelocate(-1,-1,-1,-1);
+                    borderPane.getTop().resizeRelocate(0,0,0,0);
+//                    borderPane.getTop().autosize();
                     borderPane.getCenter().setVisible(true);
                     borderPane.getCenter().resizeRelocate(0,0,Integer.MAX_VALUE,Integer.MAX_VALUE);
                     gridPane.resizeRelocate(0,0,Integer.MAX_VALUE,Integer.MAX_VALUE);
@@ -257,21 +251,21 @@ public class FXMLBoardController implements Serializable {
         // process game play events
         if (isGameStarted && !isGameOver && event.getSource() instanceof ImageView)
         {
-            ImageView imageView = (ImageView) event.getSource();
-            String viewId = imageView.getId();
+            ImageView location = (ImageView) event.getSource();
+            String viewId = location.getId();
             String sub = viewId.substring(9,10);
             System.out.printf("\nButton: %s | Subscript: %s", viewId, sub);
             Point point = new Point(board.getRow(Integer.parseInt(sub)), board.getCol(Integer.parseInt(sub)), board.getBoardSize());
             System.out.printf("\nUser: %s | Point: %s", user, point);
             board.placeAMove(point,user);
             System.out.printf("\nGame Board: %s",board.displayBoard(board.getGameBoard()));
-            imageView.setImage(userImg);
+            location.setImage(userImg);
             while ( userImg.getProgress() < 1.0 )
             {
                 Thread.sleep(1000L);
                 System.out.printf("\nWaiting for image to load.........");
             }
-            System.out.printf("\n%s load completed......", imageView.getId());
+            System.out.printf("\n%s load completed......\n", location.getId());
             // check for user win
             if(board.hasPlayerWon(user))
             {
@@ -292,29 +286,34 @@ public class FXMLBoardController implements Serializable {
                 terminalMsg(winMsg);
                 return;
             } else {
+                Board b = new Board(board);
                 // switch to opponent
                 int move = minimax.minimax(
                         0,
                         opponent,
-                        new Board(board),
+                        b,
                         Integer.MIN_VALUE,
                         0
                 );
 
                 System.out.printf("\nMinimax Score: %s | Computer Moves: %s", move, minimax.getBestmoves());
+                // get the best point/position
                 point = minimax.getBestmoves().get(move);
+                // clear best moves container after retrieving the best move
                 minimax.getBestmoves().clear();
                 System.out.printf("\nOpponent: %s | Point: %s", opponent, point);
+                // place the best move/point/position
                 board.placeAMove(point,opponent);
                 System.out.printf("\nGame Board: %s",board.displayBoard(board.getGameBoard()));
-                imageView =  (ImageView) fxmlPL.get("imageView" + point.getSub());
-                imageView.setImage(oppImg);
+                // get and add the user token to the corresponding location
+                location =  (ImageView) fxmlPL.get("imageView" + point.getSub());
+                location.setImage(oppImg);
                 while ( oppImg.getProgress() < 1.0 )
                 {
                     Thread.sleep(1000L);
                     System.out.printf("Waiting for image to load.........");
                 }
-                System.out.printf("\n%s load completed......", imageView.getId());
+                System.out.printf("\n%s load completed......\n", location.getId());
             }
             // check for opponent win
             if(board.hasPlayerWon(opponent))
@@ -341,7 +340,7 @@ public class FXMLBoardController implements Serializable {
 
     /**
      * Process terminal events.
-     * @param msg
+     * @param msg the message
      * @return true upon completion
      */
     public boolean terminalMsg(String msg)
@@ -359,8 +358,8 @@ public class FXMLBoardController implements Serializable {
         dialogBox.setVisible(true);
 
         dialog.resizeRelocate(300,10, 300, 200);
-        yes.resizeRelocate(275,400, 10, 10);
-        no.resizeRelocate(640, 400, 10, 10);
+        yes.resizeRelocate(275,500, 20, 20);
+        no.resizeRelocate(640, 500, 20, 20);
         dialogBox.resizeRelocate(0, 0, Integer.MAX_VALUE,Integer.MAX_VALUE);
         gridPane.resizeRelocate(-1,-1,Integer.MIN_VALUE, Integer.MIN_VALUE);
 
@@ -375,6 +374,10 @@ public class FXMLBoardController implements Serializable {
         return true;
     }
 
+    /**
+     * Setup the player token randomly
+     * @throws FileNotFoundException when file not foune
+     */
     public void setupPlayerToken() throws FileNotFoundException {
         if ( (rand.nextInt(3) % 2 == 0) ){
             opponent = "X";
@@ -412,43 +415,12 @@ public class FXMLBoardController implements Serializable {
         }
     }
 
-//    public Object setConfig(Object node, int X, int Y){
-//
-//        if (node instanceof Text)
-//        {
-//            Text n = (Text)node;
-//            n.setX(X);
-//            n.setY(Y);
-//            n.setTextOrigin(VPos.CENTER);
-//            n.setTextAlignment(TextAlignment.JUSTIFY);
-//            n.setWrappingWidth(50);
-//            n.setFill(Color.BLACK);
-//            n.setFont(Font.font("Times New Roman", FontWeight.BOLD, 18));
-//            return n;
-//        }
-//        else if (node instanceof Label)
-//        {
-//            Label n = (Label) node;
-//            n.setLayoutX(X);
-//            n.setLayoutY(Y);
-//            n.setAlignment(Pos.CENTER);
-//            n.setWrapText(true);
-//            n.setTextFill(Color.BLACK);
-//            n.setFont(Font.font("Times New Roman", FontWeight.BOLD, 18));
-//            return n;
-//        }
-//        else if (node instanceof Button)
-//        {
-//            Button b = (Button) node;
-////            b.setLayoutX(X);
-////            b.setLayoutY(Y);
-//            b.setAlignment(Pos.CENTER);
-//            b.setWrapText(true);
-//            b.setTextFill(Color.ROYALBLUE);
-//            b.setFont(Font.font("Times New Roman", FontWeight.BOLD, 18));
-//            return b;
-//
-//        }
-//        return null;
-//    }
+    /**
+     * Get the resource bundle
+     * @return the {@linkplain ResourceBundle}
+     */
+    public ResourceBundle getResources() {
+        return resources;
+    }
+
 }

@@ -2,11 +2,14 @@ module com.hyfi.tictactoe {
     requires javafx.controls;
     requires javafx.fxml;
     requires slf4j.api;
-    requires java.desktop;
     requires lombok;
+//    requires javafx.base;
+//    requires javafx.graphics;
+//    requires javafx.media;
+//    requires javafx.web;
+//    requires javafx.swing;
+//    requires java.desktop;
     exports com.hyfi.tictactoe;
     opens com.hyfi.tictactoe to javafx.fxml;
-    exports com.hyfi.tictactoe.UI;
-    opens com.hyfi.tictactoe.UI to javafx.fxml;
 
 }

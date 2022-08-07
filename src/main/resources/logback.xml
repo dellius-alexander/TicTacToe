@@ -71,7 +71,7 @@ ERROR 	YES 	  YES 	  YES 	YES 	YES 	  NO
     </encoder>
     <prudent>false</prudent>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>INFO</level>
+      <level>DEBUG</level>
     </filter>
   </appender>
 
@@ -83,10 +83,9 @@ ERROR 	YES 	  YES 	  YES 	YES 	YES 	  NO
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>[%highlight(%d{yyyy-MM-ddTHH:mm:ss.SSS})] [%t] [%highlight(%-5level)] [%cyan(%logger{0}.%M)][%L] |- %msg %n</pattern>
 <!--      <pattern>%msg %n</pattern>-->
-
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>WARN</level>
+      <level>INFO</level>
     </filter>
   </appender>
 

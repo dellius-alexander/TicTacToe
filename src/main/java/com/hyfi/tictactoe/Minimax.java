@@ -6,7 +6,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * The Minimax class implements the Minimax heuristic search
@@ -30,6 +34,7 @@ import java.util.concurrent.RecursiveTask;
 public class Minimax implements Serializable {
     private static final Logger log = LoggerFactory.getLogger(Minimax.class);
 //    private PointAndScore printScore;
+    private static CompletableFuture<Integer> cf = null;
     private Map<Integer,Point> bestmoves;
     private Long systemTime;
     private int index;
@@ -40,9 +45,11 @@ public class Minimax implements Serializable {
 
     /**
      * Initialize minimax algorithm
+     * @param gameBoard the game board
      */
     public Minimax(Board gameBoard) {
         log.info("\n{} init...", Minimax.class);
+
         this.gameBoard = gameBoard;
         this.systemTime = System.currentTimeMillis();
 //        System.out.printf("\nStart Time: %s",systemTime);
@@ -50,10 +57,14 @@ public class Minimax implements Serializable {
 //        this.printScore = new PointAndScore();
         this.bestmoves =  new HashMap<>();
     }
+
     /**
      * Initialize minimax algorithm
+     * @param gameBoard the game board
+     * @param oppToken opponent token
+     * @param userToken user token
      */
-    public Minimax(Board gameBoard,Object oppTokn, Object userToken) {
+    public Minimax(Board gameBoard,Object oppToken, Object userToken) {
         log.info("\n{} init...", Minimax.class);
         this.gameBoard = gameBoard;
         this.systemTime = System.currentTimeMillis();
@@ -63,9 +74,18 @@ public class Minimax implements Serializable {
         this.bestmoves =  new HashMap<>();
     }
 
+    /**
+     * Get computer move
+     * @return a {@linkplain Point}
+     */
     public Point getComputerMove(){
         return this.computerMove;
     }
+
+    /**
+     * Get the best moves
+     * @return a key, value {@linkplain Map} of Scores and Points.
+     */
     public Map<Integer,Point> getBestmoves(){return this.bestmoves;}
 
     /**
@@ -77,6 +97,7 @@ public class Minimax implements Serializable {
      * @param i			The current index to be captured
      * @param max		The best play returned
      * @param depth		The current iteration of game play
+     * @return true if the best move is saved successfully
      */
     public boolean setBestMove(Point point, int score, int availableCells, int i, int max, int depth) {
         log.info("\nBest Move: {} | Index: {} | Max: {} | Score: {}\n",
@@ -161,6 +182,15 @@ public class Minimax implements Serializable {
         return score;
     }
 
+    /**
+     * Sets the best move found during recursive callback at depth 0.
+     * @param depth the current depth
+     * @param max the best score
+     * @param moves a key, value map of positions/Points
+     * @param board the game board
+     * @param turn the current player turn
+     * @return the best evaluated score
+     */
     public Integer bestMove(int depth, int max, Map<Integer,Point> moves, Board board, Object turn){
         // make a copy of the board
         board = new Board(board);
@@ -232,13 +262,11 @@ public class Minimax implements Serializable {
      * @param board     the game board
      * @param alpha     the maximizing player score
      * @param beta      the minimizing player score
-     * @return			The best possible move for computer to take.
-     * @throws IOException throw exectption for file I/O event
+     * @return			The best possible score at current depth.
      */
     public synchronized int minimax (int depth, Object player, Board board, int alpha, int beta) {
         ///////////////////////////////////////////////////////////////////////
         // initialize clock for runtime evaluation
-        if (depth == 0) {this.systemTime = System.currentTimeMillis();}
         Random rand = new Random();
         ///////////////////////////////////////////////////////////////////////
         // Get all available positions/cells at the current depth
@@ -281,10 +309,10 @@ public class Minimax implements Serializable {
                     log.info("\nAlpha Stats => \n\tIndex Position: {} \n\tAlpha: {} \n\tBeta: {} " +
                                     "\n\tPLAYER: {} \n\tPoint: {} \n\tDepth: {} \n\tAvailable Cells CNT: {}" +
                                     "\n\tAvailable Cells: {} \n\tLast Moves: {} \n\tComputer Moves: {} " +
-                                    "\n\tRuntime Clock: {} ms\n",
+                                    "\n\tBest Moves: {} \n\tRuntime Clock: {} ms\n",
                             i, alpha, beta, player, point, depth, board.getAvailableCells().size(),
                             board.getAvailableCells(), board.getLastMoves(), board.getComputerMoves(),
-                            (System.currentTimeMillis() - systemTime));
+                            getBestmoves(), (System.currentTimeMillis() - systemTime));
                     log.info("\n####################################################");
 
                     // get the score for terminal state object
@@ -304,10 +332,10 @@ public class Minimax implements Serializable {
                     log.info("\nAlpha Win Stats => \n\tIndex Position: {} \n\tAlpha: {} \n\tBeta: {} \n\tCurrent Score: {} " +
                                     "\n\tPLAYER: {} \n\tPoint: {} \n\tDepth: {} \n\tAvailable Cells CNT: {}" +
                                     "\n\tAvailable Cells: {} \n\tLast Moves: {} \n\tComputer Moves: {} " +
-                                    "\n\tRuntime Clock: {} ms\n",
+                                    "\n\tBest Moves: {} \n\tRuntime Clock: {} ms\n",
                             i, alpha, beta, currentScore, player, point, depth, board.getAvailableCells().size(),
                             board.getAvailableCells(), board.getLastMoves(), board.getComputerMoves(),
-                            (System.currentTimeMillis() - systemTime));
+                            getBestmoves(), (System.currentTimeMillis() - systemTime));
                     log.info("\n####################################################");
 
                     // Checks and/or updates for winning position at the end of game play or during backup
@@ -325,6 +353,10 @@ public class Minimax implements Serializable {
                                 alpha,
                                 depth
                         );
+                        if (availableCells.size() > Math.pow(board.getBoardSize(),2) - 2)
+                        {
+                            break;
+                        }
 
                     }
                     // alpha beta pruning: prune current branch from game tree
@@ -335,10 +367,10 @@ public class Minimax implements Serializable {
                         log.info("\nALPHA => Alpha/Beta Pruning: \n\tIndex Position: {} \n\tAlpha: {} \n\tBeta: {} " +
                                         "\n\tCurrent Score: {} \n\tPLAYER: {} \n\tPoint: {} \n\tDepth: {} " +
                                         "\n\tAvailable Cells CNT: {} \n\tAvailable Cells: {} \n\tLast Moves: {} " +
-                                        "\n\tComputer Moves: {} \n\tIndexed Point: {} \n\tRuntime Clock: {} ms\n",
+                                        "\n\tComputer Moves: {} \n\tBest Moves: {} \n\tIndexed Point: {} \n\tRuntime Clock: {} ms\n",
                                 i, alpha, beta, currentScore, player, point, depth, board.getAvailableCells().size(),
                                 board.getAvailableCells(), board.getLastMoves(), board.getComputerMoves(),
-                                availableCells.get(i), (System.currentTimeMillis() - systemTime));
+                                getBestmoves(), availableCells.get(i), (System.currentTimeMillis() - systemTime));
                         log.info("\n####################################################");
                         // remove the last move played after game completes
                         board.getGameBoard()[point.getRow()][point.getCol()] = board.getNoPlayer();
@@ -375,10 +407,10 @@ public class Minimax implements Serializable {
                     log.info("\nBETA Stats => \n\tIndex Position: {} \n\tAlpha: {} \n\tBeta: {} " +
                                     "\n\tPLAYER: {} \n\tPoint: {} \n\tDepth: {} \n\tAvailable Cells CNT: {}" +
                                     "\n\tAvailable Cells: {} \n\tLast Moves: {} \n\tComputer Moves: {} " +
-                                    "\n\tRuntime Clock: {} ms\n",
+                                    "\n\tBest Moves: {} \n\tRuntime Clock: {} ms\n",
                             i, alpha, beta, player, point, depth, board.getAvailableCells().size(),
                             board.getAvailableCells(), board.getLastMoves(), board.getComputerMoves(),
-                            (System.currentTimeMillis() - systemTime));
+                            getBestmoves(), (System.currentTimeMillis() - systemTime));
                     log.info("\n####################################################");
 
                     // get the score for terminal state object
@@ -389,6 +421,7 @@ public class Minimax implements Serializable {
                             alpha,
                             beta
                     );
+//                    int currentScore = cf.get(3000L, TimeUnit.MILLISECONDS);
                     // Returns the minimum value for the best move of all iterations
                     beta = Math.min( beta, currentScore );
                     // capture stats
@@ -397,14 +430,14 @@ public class Minimax implements Serializable {
                     log.info("\nBeta Win Stats => \n\tIndex Position: {} \n\tAlpha: {} \n\tBeta: {} \n\tCurrent Score: {} " +
                                     "\n\tPLAYER: {} \n\tPoint: {} \n\tDepth: {} \n\tAvailable Cells CNT: {}" +
                                     "\n\tAvailable Cells: {} \n\tLast Moves: {} \n\tComputer Moves: {} " +
-                                    "\n\tIndexed Point: {} \n\tRuntime Clock: {} ms\n",
+                                    "\n\tBest Moves: {} \n\tIndexed Point: {} \n\tRuntime Clock: {} ms\n",
                             i, alpha, beta, currentScore, player, point, depth, board.getAvailableCells().size(),
-                            board.getAvailableCells(), board.getLastMoves(), board.getComputerMoves(),
+                            board.getAvailableCells(), board.getLastMoves(), board.getComputerMoves(), getBestmoves(),
                             availableCells.get(i), (System.currentTimeMillis() - systemTime));
                     log.info("\n####################################################");
                     // Checks and/or updates for winning position at the end of game play or during backup
                     // to root node, defined as depth == 0.
-                    if ( depth == 0 && currentScore >= 0 )
+                    if ( currentScore <= -1 && availableCells.size() > Math.pow(board.getBoardSize(),2) - 2)
                     {
                         // capture the best moves for each best case modeled at game play
                         // using recursive maximum score to learn what the best moves are
@@ -414,10 +447,13 @@ public class Minimax implements Serializable {
                                 currentScore,
                                 availableCells.size(),
                                 i,
-                                alpha,
+                                beta,
                                 depth
                         );
+                        break;
+
                     }
+
                     // alpha beta pruning: prune current branch from game tree
                     if (alpha >= beta)
                     {
@@ -427,9 +463,9 @@ public class Minimax implements Serializable {
                         log.info("\nBETA => Alpha/Beta Pruning: \n\tIndex Position: {} \n\tAlpha: {} \n\tBeta: {} " +
                                         "\n\tCurrent Score: {} \n\tPLAYER: {} \n\tPoint: {} \n\tDepth: {} " +
                                         "\n\tAvailable Cells CNT: {} \n\tAvailable Cells: {} \n\tLast Moves: {} " +
-                                        "\n\tComputer Moves: {} \n\tIndexed Point: {} \n\tRuntime Clock: {} ms\n",
+                                        "\n\tComputer Moves: {} \n\tBest Moves: {} \n\tIndexed Point: {} \n\tRuntime Clock: {} ms\n",
                                 i, alpha, beta, currentScore, player, point, depth, board.getAvailableCells().size(),
-                                board.getAvailableCells(), board.getLastMoves(), board.getComputerMoves(),
+                                board.getAvailableCells(), board.getLastMoves(), board.getComputerMoves(),getBestmoves(),
                                 availableCells.get(i), (System.currentTimeMillis() - systemTime));
                         log.info("\n####################################################");
                         // remove the last move played after game completes
@@ -459,10 +495,10 @@ public class Minimax implements Serializable {
             log.info("\nPATH VALUE => \n\tAlpha: {} \n\tBeta: {} " +
                             "\n\tPlayer: {} \n\tDepth: {} \n\tAvailable Cells CNT: {}" +
                             "\n\tAvailable Cells: {} \n\tLast Moves: {} \n\tComputer Moves: {} " +
-                            "\n\tRuntime Clock: {} ms\n",
+                            "\n\tBest Moves: {} \n\tRuntime Clock: {} ms\n",
                     alpha, beta, player, depth, board.getAvailableCells().size(),
                     board.getAvailableCells(), board.getLastMoves(), board.getComputerMoves(),
-                    (System.currentTimeMillis() - systemTime));
+                    getBestmoves(), (System.currentTimeMillis() - systemTime));
             log.info("\n####################################################");
         }
         // return best score for current player
@@ -470,10 +506,30 @@ public class Minimax implements Serializable {
     }
     ///////////////////////////////////////////////////////////////////////////
     /**
-     * Main Method
-     * @param args
+     * Algorithm start time
+     * @return the start time in Milliseconds format, <br>
+     * i.e. {@linkplain Long}
      */
-    public static void main(String[] args) throws InterruptedException {
+    public Long getSystemTime()
+    {
+        return systemTime;
+    }
+
+    /**
+     * Set the algorithm runtime counter
+     * @param systemTime system time in Milliseconds
+     */
+    public void setSystemTime(Long systemTime)
+    {
+        this.systemTime = systemTime;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    /**
+     * Main Method
+     * @param args command line argument
+     * @throws InterruptedException interrupted exception
+     */
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
         ///////////////////////////////////////////////////
 
 //        Board bd = new Board(new Object[][]{
@@ -489,7 +545,7 @@ public class Minimax implements Serializable {
 //        Board bd = new Board(new Object[][]{
 //                        {"","","","O"},
 //                        {"","","","O"},
-//                        {"X","","","O"},
+//                        {"X","","",""},
 //                        {"X","","",""}
 //        });
 
@@ -500,6 +556,7 @@ public class Minimax implements Serializable {
                 {"","",""},
                 {"","",""}
         });
+
         bd.setLastMove(new Point(0,0, bd.getBoardSize()));
 
         ///////////////////////////////////////////////////
@@ -507,6 +564,7 @@ public class Minimax implements Serializable {
         bd.displayBoard();
         bd.setComputerMark("X");
         bd.setHumanMark("O");
+        Long clock = System.currentTimeMillis();
         // pass game board to minimax class
         Minimax mx = new Minimax(bd);
 
@@ -515,14 +573,30 @@ public class Minimax implements Serializable {
         // find the best move for this round of game play
         while (!bd.getAvailableCells().isEmpty() || !bd.hasPlayerWon("X") || !bd.hasPlayerWon("O"))
         {
+
             int move = mx.minimax(
                     0,
                     turn,
                     bd,
                     Integer.MIN_VALUE,
                     0
-
             );
+
+//            Object finalTurn = turn;
+//            Board finalBd = bd;
+//            int move = CompletableFuture.<Integer>supplyAsync(
+//                    new Supplier<Integer>() {
+//                        /**
+//                         * Gets a result.
+//                         *
+//                         * @return a result
+//                         */
+//                        @Override
+//                        public Integer get() {
+//                            return mx.minimax(0, finalTurn, finalBd,Integer.MIN_VALUE,0);
+//                        }
+//                    }).get();
+
             System.out.printf("\nMinimax initial score: %s\n",move);
 
 //            move = mx.bestMove(
@@ -541,8 +615,8 @@ public class Minimax implements Serializable {
             bd.displayBoard();
             System.out.printf("\n\nBest Result: %s | Point: %S\n",
                     move, point);
-            System.out.printf("\nMinimax Results Comp Moves: \n\t%s | Best Move: %s\n",
-                    bd.getComputerMoves(), move);
+//            System.out.printf("\nMinimax Results Comp Moves: \n\t%s | Best Move: %s\n",
+//                    bd.getComputerMoves(), move);
             System.out.printf("\nLast Moves: %s\n",
                     bd.getLastMoves());
 
@@ -568,7 +642,15 @@ public class Minimax implements Serializable {
                 bd.getComputerMoves().clear();
                 bd = new Board(bd);
             }
+
+            System.out.printf("\nRunTime Clock: %s",
+                    System.currentTimeMillis() - mx.getSystemTime() );
+            mx.setSystemTime(System.currentTimeMillis());
         }
+        System.out.printf("\nMinimax Total Clock: %s",
+                System.currentTimeMillis() - mx.getSystemTime());
+        System.out.printf("\nTotal Clock: %s",
+                System.currentTimeMillis() - clock);
 
 
 

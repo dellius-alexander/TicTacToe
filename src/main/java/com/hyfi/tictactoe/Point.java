@@ -20,7 +20,6 @@ public class Point implements Serializable {
     private int sub;
     private Point computerMove;
     private int boardSize;
-    private int root;
 
     /**
      * The class default constructor.
@@ -36,7 +35,6 @@ public class Point implements Serializable {
      * @param boardSize the board size
      */
     public Point(Point point, int boardSize) {
-        this.setRoot(boardSize);
         this.setRow(point.getRow());
         this.setCol(point.getCol());
         this.setSub(point.getSub());
@@ -47,18 +45,18 @@ public class Point implements Serializable {
     }
      /**
      * The subscript of the current Point
-     * @param s the subscript of the Point
-     * @param boardSize
+     * @param sub the subscript of the Point
+     * @param boardSize the game board size
      */
-    public Point(int s,int boardSize) {
+    public Point(int sub,int boardSize) {
         // Log a simple INFO message.
-        this.setRoot(boardSize);
-        log.info("\nConstructor init...\nSub: {} | Root: {}",s,root);
-        this.setRow((s / this.root ));
-        this.setCol((s % this.root));
-        this.setSub(s);
+        log.info("\nConstructor init...\nSub: {} | boardSize: {}",sub,boardSize);
         this.setBoardSize(boardSize);
-        log.info("\nSubscript: {} | Row: {} | Column: {} ",s,getRow(),getCol());
+        this.setRow((sub / this.boardSize ));
+        this.setCol((sub % this.boardSize));
+        this.setSub(sub);
+
+        log.info("\nSubscript: {} | Row: {} | Column: {} ",sub,getRow(),getCol());
         computerMove = new Point(row,col,boardSize);
     }
      /**
@@ -66,16 +64,18 @@ public class Point implements Serializable {
      * integer value. Default board size is 9.
      * @param r the row of the Point
      * @param c the column of the point
-     * @param boardSize
+     * @param boardSize  the game board size
      */
     public Point(int r, int c, int boardSize) {
-        this.setRoot(boardSize);
         this.setRow(r);
         this.setCol(c);
-        this.setSub((this.row * this.root + (this.col)));
+        this.setSub((this.row * this.boardSize + (this.col)));
         this.setBoardSize(boardSize);
         log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
     }
+
+
+
     /**
      * Sets the board size
      * @param size the size of the game board
@@ -89,11 +89,14 @@ public class Point implements Serializable {
      */
     public void setBoardSize(Object[][] gameBoard){
         this.boardSize = gameBoard.length;
-        this.setRoot(this.boardSize);
     }
 
+    /**
+     * Get the board size
+     * @return the game board size
+     */
     public int getBoardSize() {
-        return boardSize;
+        return this.boardSize;
     }
 
     /**
@@ -101,8 +104,8 @@ public class Point implements Serializable {
      * @param sub the subscript of the Point
      */
     public void setPoints(int sub) {
-        this.row = (sub / this.root);
-        this.col = (sub % this.root);
+        this.row = (sub / this.boardSize);
+        this.col = (sub % this.boardSize);
         log.info("\nSubscript: "+sub+" | Row: "+this.row+" | Column: "+this.col);
     }
 
@@ -118,6 +121,10 @@ public class Point implements Serializable {
         return "['" + this.row + "', '" + this.col + "']";
     }
 
+    /**
+     * Set the row
+     * @param row the row
+     */
     public void setRow(int row) {
         this.row = row;
     }
@@ -138,12 +145,16 @@ public class Point implements Serializable {
      */
     public int getRow(int s) {
         this.sub = s;
-        this.row = (s / this.root);
-        this.col = (s % this.root);
+        this.row = (s / this.boardSize);
+        this.col = (s % this.boardSize);
         log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return this.row;
     }
 
+    /**
+     * Set the column
+     * @param col the column
+     */
     public void setCol(int col) {
         this.col = col;
     }
@@ -164,13 +175,17 @@ public class Point implements Serializable {
      */
     public int getCol(int s) {
         this.sub = s;
-        this.row = (s / this.root);
-        this.col = (s % this.root);
+        this.row = (s / this.boardSize);
+        this.col = (s % this.boardSize);
 
         log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return this.col;
     }
 
+    /**
+     * Set the subscript
+     * @param sub the subscript
+     */
     public void setSub(int sub) {
         this.sub = sub;
     }
@@ -181,8 +196,8 @@ public class Point implements Serializable {
      */
     public int getSub() {
         // this.sub = (int) ((this.row) * (Math.sqrt(boardSize)) + (this.col));
-        log.info("\nSubscript: {} | BoardSize: {} | Row: {} | Column: {}",this.sub,this.root,this.row,this.col);
-        return (sub == (((this.row) * (this.root) + (this.col))) ? sub : ((this.row) * (this.root) + (this.col)) );
+        log.info("\nSubscript: {} | BoardSize: {} | Row: {} | Column: {}",this.sub,this.boardSize,this.row,this.col);
+        return (sub == (((this.row) * (this.boardSize) + (this.col))) ? sub : ((this.row) * (this.boardSize) + (this.col)) );
 
     }
     /**
@@ -195,7 +210,7 @@ public class Point implements Serializable {
     public int getSub(int row, int col) {
         this.row = row;
         this.col = col;
-        this.sub =  ((this.row) * (this.root) + (this.col));
+        this.sub =  ((this.row) * (this.boardSize) + (this.col));
         log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
         return this.sub;
     }
@@ -203,7 +218,7 @@ public class Point implements Serializable {
      * The getComputerMove returns the row and column
      * value of the subscript value for the computer
      * move when called.
-     * @return	The object representing row and column
+     * @return	a {@linkplain Point}
      */
     public Point getComputerMove() {
         log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
@@ -229,7 +244,7 @@ public class Point implements Serializable {
     public void setComputerMove(int row, int col) {
         this.row = row;
         this.col = col;
-        this.sub = ((this.row) * (this.root) + (this.col));
+        this.sub = ((this.row) * (this.boardSize) + (this.col));
         this.computerMove = new Point(row, col,boardSize);
         log.info("\nSubscript: "+this.sub+" | Row: "+this.row+" | Column: "+this.col);
     }

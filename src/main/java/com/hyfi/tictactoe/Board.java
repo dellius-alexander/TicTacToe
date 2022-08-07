@@ -5,8 +5,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The Board class represents the game board in a Tic Tac Toe game. This
@@ -173,15 +176,6 @@ public class Board implements Serializable {
     {
         this.lastMoves.add( point);
     }
-    /**
-     * Adds the last move played to a list of previous moves
-     * @param point the point played last
-     */
-    public void setLastMove(Integer key, Point point)
-    {
-        this.lastMoves.add(point);
-    }
-
 
 
     /**
@@ -367,7 +361,8 @@ public class Board implements Serializable {
     }
     /**
      * Get the best entry.
-     * @return	{@link Map.Entry<Integer,Point>}
+     * @param  key element key value
+     * @return	{@linkplain  Map.Entry}
      */
     public Map.Entry<Integer,Point> getBestEntry(int key) {
         log.info("\nContainer size: {}", this.computerMoves.size());
@@ -401,10 +396,10 @@ public class Board implements Serializable {
                 }
             }
 
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();
-        } // default entry
+        }
         final Point[] p = {this.computerMoves.get(key)};
         return new Map.Entry<Integer, Point>() {
             @Override
@@ -587,7 +582,7 @@ public class Board implements Serializable {
         if ( gameBoard[point.getRow()][point.getCol()] == NO_PLAYER
         || gameBoard[point.getRow()][point.getCol()] == null){
             gameBoard[point.getRow()][point.getCol()] = player;
-            setLastMove(point.getSub(),point);
+            setLastMove(point);
             log.info("\nPlaced A Move at => Row: {}  | Column: {} \n Last moves: {}",
                     point.getRow(),point.getCol(),
                     this.lastMoves.stream().collect(Collectors.toList()));
@@ -611,6 +606,7 @@ public class Board implements Serializable {
     /**
      * The displayBoard prints the game board to the display.
      * @param gameBoard the game board
+     * @return the game board in string format.
      */
     public String displayBoard(Object[][] gameBoard) {
         String board = String.format("\n\n");
@@ -682,11 +678,10 @@ public class Board implements Serializable {
         return gBoard;
     }
 
-
     public boolean diagonalCheckFromBottomLeft(Object player){
+        log.info("\nPerforming diagonalCheckFromBottomLeft(for Player : {})",player);
         Object[][] gBoard = getGameBoard();
         int numberOfColumns = gBoard.length;
-        log.info("\nPerforming diagonalCheckFromBottomLeft check......");
         boolean isWinner = false;
         // counts how many time a match is found
         // reset counter after every row check
@@ -707,7 +702,7 @@ public class Board implements Serializable {
                 break;
             }
             if (validityCounter == numberOfColumns){
-                log.info("\ndiagonalCheckFromBottomLeft Winner Found...");
+                log.info("\nWinner Found => diagonalCheckFromBottomLeft(for Player : {})",player);
                 isWinner = true;
                 break;
             }
@@ -716,9 +711,9 @@ public class Board implements Serializable {
     }
 
     public boolean diagonalCheckFromTopLeft(Object player){
+        log.info("\nPerforming diagonalCheckFromTopLeft(for Player : {})",player);
         Object[][] gBoard = getGameBoard();
         int numberOfColumns = gBoard.length;
-        log.info("\nPerforming diagonalCheckFromTopLeft check......");
         boolean isWinner = false;
         // counts how many time a match is found
         // reset counter after every row check
@@ -739,7 +734,7 @@ public class Board implements Serializable {
                 break;
             }
             if (validityCounter == numberOfColumns){
-                log.info("\ndiagonalCheckFromTopLeft Winner Found...");
+                log.info("\nWinner Found => diagonalCheckFromTopLeft(for Player : {})",player);
                 isWinner = true;
                 break;
             }
@@ -748,6 +743,7 @@ public class Board implements Serializable {
     }
 
     public boolean horizontalCheck(Object player){
+        log.info("\nPerforming horizontalCheck(for Player : {})",player);
         Object[][] gBoard = getGameBoard();
         int numberOfColumns = gBoard.length;
         // counts how many time a match is found
@@ -772,7 +768,7 @@ public class Board implements Serializable {
                 }
             }
             if (validityCounter == numberOfColumns){
-                log.info("\nhorizontalCheck Winner Found...");
+                log.info("\nWinner Found => horizontalCheck(for Player : {})",player);
                 isWinner = true;
                 break;
             }
@@ -806,7 +802,7 @@ public class Board implements Serializable {
                 }
             }
             if (validityCounter == numberOfColumns){
-                log.info("\nverticalCheck Winner Found...");
+                log.info("\nWinner Found => verticalCheck(for Player : {})",player);
                 isWinner = true;
                 break;
             }
@@ -820,9 +816,9 @@ public class Board implements Serializable {
      * _____ COLUMNS ]____ <br>
      *    0     1     2 <br>
      * ___________________ <br>
-     * |__o__|__x__|__o__|  <=  0 <br>
-     * |__x__|__x__|__x__|  <=  1 [   |ROWS|   ] <br>
-     * |__o__|__o__|__x__|  <=  2 <br>
+     * |__o__|__x__|__o__|   =  0 <br>
+     * |__x__|__x__|__x__|   =  1 [   |ROWS|   ] <br>
+     * |__o__|__o__|__x__|   =  2 <br>
      * <br>
      * There is a pattern that opens up from the few sequences below.
      * Can we find an equation to abstract each sequence. Yes...
@@ -841,33 +837,149 @@ public class Board implements Serializable {
      * <br>
      * Dynamically checks for a winning pattern based on the board size
      * @param player the player mark
-     * @return {@linkplain boolean} => true if player won, false if no win
+     * @return {@linkplain boolean} true if player won, false if no win
      */
-    public boolean hasPlayerWon(Object player){
+    public boolean hasPlayerWon(Object player) {
+        log.info("\n\nTesting => Player: {}\n",player);
         // parallel execution implementation for game board checks
+        Stream<Boolean> s = null;
+        Collection<CompletableFuture<Boolean>> futures;
+        boolean results = false;
+        try {
+            if (getAvailableCells().size() >= (Math.pow(getBoardSize(), 2) - getBoardSize())) {
+                return false;
+            } else {
+                futures = Set.of(
+                    CompletableFuture.<Boolean>supplyAsync(
+                        new Supplier<Boolean>() {
+                            /**
+                             * Gets a result.
+                             *
+                             * @return a result
+                             */
+                            @Override
+                            public Boolean get() {
+                                return verticalCheck(player);
+                            }
+                        }),
+                        CompletableFuture.<Boolean>supplyAsync(
+                                new Supplier<Boolean>() {
+                                    /**
+                                     * Gets a result.
+                                     *
+                                     * @return a result
+                                     */
+                                    @Override
+                                    public Boolean get() {
+                                        return horizontalCheck(player);
+                                    }
+                                }),
+                    CompletableFuture.<Boolean>supplyAsync(
+                        new Supplier<Boolean>() {
+                            /**
+                             * Gets a result.
+                             *
+                             * @return a result
+                             */
+                            @Override
+                            public Boolean get() {
+                                return diagonalCheckFromTopLeft(player);
+                            }
+                        }),
+                    CompletableFuture.<Boolean>supplyAsync(
+                        new Supplier<Boolean>() {
+                            /**
+                             * Gets a result.
+                             *
+                             * @return a result
+                             */
+                            @Override
+                            public Boolean get() {
+                                return diagonalCheckFromBottomLeft(player);
+                            }
+                        })
+                );
+            }
 
-        if (getAvailableCells().size() > (Math.pow(getBoardSize(),2) - getBoardSize())){
-            return false;
-        }
-        else {
-            return Arrays.stream(new Boolean[]{
-                    verticalCheck(player),
-                    horizontalCheck(player),
-                    diagonalCheckFromBottomLeft(player),
-                    diagonalCheckFromTopLeft(player)
-                    })
+            log.info("\nLast Moves: {}\n", getLastMoves());
+
+            results = futures
+                    .parallelStream()
                     .parallel()
-                    .anyMatch(bool -> bool == true);
+                    .anyMatch(
+                        bool -> {
+                            try {
+                                if (bool.get()){
+                                    return Boolean.TRUE;
+                                }
+                            } catch (InterruptedException | ExecutionException e) {
+                                log.error(e.getLocalizedMessage());
+                                e.printStackTrace();
+                            }
+                            return Boolean.FALSE;
+                        }
+                    );
+
+        } catch (Exception e){
+            log.error(e.getLocalizedMessage());
+            e.printStackTrace();
         }
+
+        return results;
+
+//            ExecutorService myWorkers = Executors.newFixedThreadPool(4);
+//
+//            CompletableFuture<Boolean> future
+//                    = CompletableFuture.<Boolean>supplyAsync(() -> horizontalCheck(player), myWorkers)
+//                    .thenApplyAsync(v -> verticalCheck(player), myWorkers)
+//                    .thenApplyAsync(v -> diagonalCheckFromTopLeft(player), myWorkers)
+//                    .thenApplyAsync(v -> diagonalCheckFromBottomLeft(player), myWorkers);
+//            future.whenComplete((x, y) -> myWorkers.shutdownNow());
+//            results = future.get();
+/////////////////// Alternate implementation //////////////////
+//                .filter(
+//                        (bool -> {
+//                            try {
+//                                if (bool.get()) return Boolean.TRUE;
+//                                else {
+//                                    bool.cancel(true);
+//                                }
+//                            } catch (InterruptedException e) {
+//                                e.printStackTrace();
+//                            } catch (ExecutionException e) {
+//                                e.printStackTrace();
+//                            }
+//                            return true;
+//                        })
+//                )
+//                .anyMatch((bool) -> {
+//                    try {
+//                        if (bool.get())
+//                            return Boolean.TRUE;
+//                    } catch (InterruptedException | ExecutionException e) {
+//                        log.error(e.getLocalizedMessage());
+//                        e.printStackTrace();
+//                    }
+//                    return Boolean.FALSE;
+//                });
+
+/////////////////// Alternate implementation //////////////////
+//        return cf.parallelStream()
+//                .filter((future) -> {
+//                    try {
+//                        if (future.get()) return true;
+//                    } catch (InterruptedException | ExecutionException e) {
+//                        log.error(e.getLocalizedMessage());
+//                        e.printStackTrace();
+//                    }
+//                    return false;
+//                } ).findFirst().isPresent();
+
     }
 
     public int hashCode() {
         final int PRIME = 59;
         int result = 1;
-//        final Object $previous = this.getPrevious();
-//        result = result * PRIME + ($previous == null ? 43 : $previous.hashCode());
-//        final Object $next = this.getNext();
-//        result = result * PRIME + ($next == null ? 43 : $next.hashCode());
         final Object $computerMark = this.getComputerMark();
         result = result * PRIME + ($computerMark == null ? 43 : $computerMark.hashCode());
         final Object $humanMark = this.getHumanMark();
@@ -887,8 +999,6 @@ public class Board implements Serializable {
 
     public String toString() {
         return "Board(" +
-//                "previous=" + this.getPrevious() + ", " +
-//                "next=" + this.getNext() + ", " +
                 "computerMark=" + this.getComputerMark() + ", " +
                 "humanMark=" + this.getHumanMark() + ", " +
                 "gameBoard=" + Arrays.deepToString(this.getGameBoard()) + ", " +
@@ -911,19 +1021,7 @@ public class Board implements Serializable {
 //        return arr.size();
 //    }
 
-    public static class MyTask implements Runnable {
-        BooleanSupplier target;
-        Boolean bool;
 
-        public MyTask(BooleanSupplier target) {
-            this.target = target;
-        }
-
-        @Override
-        public void run() {
-            bool = target.getAsBoolean();
-        }
-    }
     ///////////////////////////////////////////////////////////////////////////
     //  MAIN
     ///////////////////////////////////////////////////////////////////////////
