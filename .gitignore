@@ -3,8 +3,8 @@
 /data/
 /.idea/
 /**/.DS_Store
-/javafx/javafx-sdk-18.0.1/.DS_Store
-/src/main/.DS_Store
-/src/main/resources/.DS_Store
-/src/main/resources/lib/.DS_Store
+#/javafx/javafx-sdk-18.0.1/.DS_Store
+#/src/main/.DS_Store
+#/src/main/resources/.DS_Store
+#/src/main/resources/lib/.DS_Store
 /.vscode
