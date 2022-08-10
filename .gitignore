@@ -2,7 +2,7 @@
 /javafx/
 /data/
 /.idea/
-**/.DS_Store
+/**/.DS_Store
 /javafx/javafx-sdk-18.0.1/.DS_Store
 /src/main/.DS_Store
 /src/main/resources/.DS_Store
